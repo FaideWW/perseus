@@ -3,5 +3,8 @@ class BoundingObject:
 		pass
 
 	def getBoundType(self):
-		raise NotImplementedError("Bounding object type is an interface.")
+		raise NotImplementedError('Bounding object type is an interface.')
 		return
+
+	def getBoundShape(self):
+		raise NotImplementedError('Bounding object type is an interface.')

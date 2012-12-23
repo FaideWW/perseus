@@ -1,29 +1,17 @@
-class Position:
-	self.x
-	self.y
-	self.z
-	def __init__(self, x, y, z):
+from coordinate import Coordinate
+
+
+class Position(Coordinate):
+	def __init__(self, x, y, z=0):
 		self.x = x
 		self.y = y
 		self.z = z
+	""" Position coordinates.  The only difference here is the z value is optional. """
+	def add(self, x, y, z=0):
+		return super(Position, self).add(x, y, z)
 
-	def rel(self, x, y, z=0):
-		""" change position relative to current position """
-		self.x += x
-		self.y += y
-		self.z += z
-		return self
-
-	def abs(self, x, y, z=0):
-		""" set position absolutely on world space """
-		self.x = x
-		self.y = y
-		self.z = z
-		return self
+	def set(self, x, y, z=0):
+		return super(Position, self).set(x, y, z)
 
 	def scale(self, sX, sY, sZ=1):
-		""" scale position relative to the origin """
-		self.x *= sX
-		self.y *= sY
-		self.z *= sZ
-		return self
+		return super(Position, self).scale(sX, sY, sZ)

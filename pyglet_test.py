@@ -21,7 +21,7 @@ def on_draw():
 	window.clear()
 	label.draw()
 	fps.draw()
-	image.blit(0,0)
+	#image.blit(0,0)
 
 @window.event
 def on_key_press(symbol, modifiers):
@@ -40,4 +40,9 @@ def on_mouse_press(x, y, button, modifiers):
 # log all events (including mouse movement, which can get quite annoying)
 # window.push_handlers(pyglet.window.event.WindowEventLogger())
 
+def update(dt):
+	label.text = str(dt)
+	pass
+
+pyglet.clock.schedule_interval(update, 1/120.0)
 pyglet.app.run()
