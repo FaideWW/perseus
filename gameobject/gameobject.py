@@ -8,12 +8,22 @@ class GameObject:
 		self.pos = Position(0,0)
 		self.vel = Velocity(0,0)
 		self.acc = Velocity(0,0)
+		#terminal velocity from gravity
+		self.termV = -20
+
+		self.size = Position(0,0)
 
 	def initialize(self, img_path, boundingbox, collider):
 		#not sure if I actually need this function.
 		#probably not, it's mostly for convenience
 		#maybe in the future for modding, etc...
 		pass
+
+	def setSize(self, x, y):
+		self.size = Position(x, y)
+
+	def getSize(self):
+		return self.size
 
 	def setSprite(self, img_path):
 		self.sprite = img_path
@@ -26,6 +36,9 @@ class GameObject:
 
 	def getBoundingBox(self):
 		return self.boundingbox
+
+	def getBoundingVertices(self):
+		return self.bounding_box.getVertices()
 
 	def setCollider(self, collider):
 		self.collider = collider
@@ -43,7 +56,9 @@ class GameObject:
 		return self.vel
 
 	def setVelocity(self, x, y):
-		return self.vel.set(x, y)
+		if self.vel.y < self.termV:
+			y = self.termV
+		return self.vel.set(x, y, 0)
 
 	def setVelocityX(self, x):
 		return self.setVelocity(x, self.getVelocity().y)

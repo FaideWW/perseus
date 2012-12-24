@@ -30,15 +30,17 @@ class Coordinate(object):
 	""" Operator definition """
 
 	def __add__(self, coor):
-		return self.add(coor.x, coor.y, coor.z)
+		return Coordinate(self.x + coor.x, self.y + coor.y, self.z + coor.z)
 
 	def __sub__(self, coor):
-		return self.add(coor.x*-1, coor.y*-1, coor.z*-1)
+		return Coordinate(self.x - coor.x, self.y - coor.y, self.z - coor.z)
 
 	def __mul__(self, coor):
-		return self.scale(coor.x, coor.y, coor.z)
+		return Coordinate(self.x * coor.x, self.y * coor.y, self.z * coor.z)
 
 	def __div__(self, coor):
-		return self.scale(1/coor.x, 1/coor.y, 1/coor.z)
+		return Coordinate(self.x / coor.x, self.y / coor.y, self.z / coor.z)
 
 	
+	def __str__(self):
+		return '(' + str(self.x) + ',' + str(self.y) + ',' + str(self.z) + ')'

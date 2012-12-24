@@ -3,7 +3,7 @@ import math
 from axisalignedboundingbox import AxisAlignedBoundingBox
 from boundingsphere import BoundingSphere
 from gameobject.gameobject import GameObject
-from components.vector import Vector
+from components.vector import Vec2
 
 class CollisionManager:
 	def __init__(self):
@@ -176,6 +176,14 @@ class CollisionManager:
 			#special case for spheres
 			pass
 		else:
+
+			print 'bb1:', bb1
+			print 'bb2:', bb2
+			print 'p1:', p1
+			print 'p2:', p2
+
+
+
 			#check for the less complex shape to be the collider
 			if len(bb1.getVertices()) <= len(bb1.getVertices()):
 				collider = bb1.getVertices()
@@ -191,21 +199,29 @@ class CollisionManager:
 			# frame bounding objects in world space
 			# also generate vectors for separating axes
 
+			
 			axes = []
-
-
+			next = 0
+			
 			for vertex in range(len(collider)):
 				collider[vertex] += collider_p
-				next = vertex + len(collider)
-				if next == len(collider): 
-					next = 0
+				next = vertex + 1								
+				if next == len(collider): 					
+					next = 0					
 					dir_to_next = collider[next] - collider[vertex]
 				else:
 					dir_to_next = collider[next]
-				vec = Vector(collider[vertex], collider[next])
+				vec = Vec2(collider[vertex], dir_to_next)
 				axes.append(vec.rotate(90))
 			for vertex in range(len(collidee)):
 				collidee[vertex] += collidee_p
+			print 'collider:'
+			for x in collider:
+				print x
+			print 'collidee:'
+			for x in collidee:
+				print x
+
 
 			collision_axis = -1
 			last_depth = -1
@@ -216,7 +232,7 @@ class CollisionManager:
 				#if all projection vectors overlap, we have a collision
 
 				axis = axes[i]
-				collider_vector_min = collder_vector_max = collidee_vector_min = collidee_vector_max = -1
+				collider_vector_min = collider_vector_max = collidee_vector_min = collidee_vector_max = -1
 
 				for point in collider:
 					#get the dot product of point and axis to find its projection
@@ -236,7 +252,7 @@ class CollisionManager:
 				for point in collidee:
 					#same drill as before
 					axisPos = point.x * axis.direction.x + point.y * axis.direction.y
-					if collidee_vector_min == -1 and collidee.vector.max == -1:
+					if collidee_vector_min == -1 and collidee_vector_max == -1:
 						collidee_vector_min = collidee_vector_max = axisPos
 					elif axisPos < collidee_vector_min:
 						collider_vector_min = axisPos
@@ -256,4 +272,19 @@ class CollisionManager:
 					if last_depth < 0 or last_depth > depth:
 						last_depth = depth
 						collision_axis = i
+						print 'collision!'
+						print 'axis', collision_axis
+						print 'depth:', depth
 			return collision_axis
+
+	def getSeparatingAxes(self, boundingbox, position):
+		vertices = boundingbox.getVertices()
+		axes = []
+		for side in range(len(vertices)):
+			n = side + 1
+			if n == len(vertices):
+				n = 0
+			direction = vertices[n] - vertices[side]
+			vec = Vec2(position, direction)
+			axes.append(vec.rotate(90))
+		return axes
