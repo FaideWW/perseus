@@ -1,108 +1,138 @@
 import pyglet
+import time
 from pyglet.window import key
 
 from gameobject.gameobject import GameObject
+from gameobject.player import Player
 from collision.collisionmanager import CollisionManager
 from collision.axisalignedboundingbox import AxisAlignedBoundingBox
 from collision.colliders import ElasticCollider
+from components.coordinate import Coordinate
+from components.vector import Vector
 from components.forces import Gravity
-import render.functions as render
+from render.functions import Renderer
+
 
 window = pyglet.window.Window()
 
-print window.get_size()[1]
+
+movementSpeed = 4
+fps = pyglet.clock.ClockDisplay()
+render = Renderer()
+
 
 cm = CollisionManager()
 g = Gravity()
 
-object1 = GameObject(0)
+player = Player(0)
 img1 = 'icon.png'
 bb1 = AxisAlignedBoundingBox(24, 24)
 cc1 = ElasticCollider(1)
 
-object1.setSprite(img1)
-object1.setBoundingBox(bb1)
-object1.setCollider(cc1)
-object1.setPosition(60,60)
-object1.setVelocity(0,0)
-object1.setSize(24,24)
+player.setSprite(img1)
+player.setBoundingBox(bb1)
+player.setCollider(cc1)
+player.setPosition(100,100)
+player.setVelocity(0,0)
+player.setSize(48,48)
 
 floor = GameObject(1)
 bb2 = AxisAlignedBoundingBox((window.get_size()[0]) / 2,10)
 floor.setBoundingBox(bb2)
-floor.setPosition((window.get_size()[0] / 2), 10)
+floor.setPosition(0,0)
+floor.setSize(window.get_size()[0], 20)
 
-img1 = pyglet.resource.image(object1.getSprite())
+img1 = pyglet.resource.image(player.getSprite())
+
+vec1 = Vector([0,0])
+
+ob1Pos = pyglet.text.Label(str(player.getPosition()),
+	font_name='Times New Roman',
+	font_size=12,
+	x=player.getPosition().x, y=player.getPosition().y,
+	anchor_x='center', anchor_y='center')
+
+
 
 @window.event
 def on_draw():
 	window.clear()
-	img1.blit(object1.getPosition().x, object1.getPosition().y)
 
-	
-	#draw separating axes
-	for axis in cm.getSeparatingAxes(bb1, object1.getPosition()):
-		x1 = axis.point.x
-		y1 = axis.point.y
-		x2 = int(axis.point.x + axis.direction.x)
-		y2 = int(axis.point.y + axis.direction.y)
-		print x1, y1, x2, y2
-		pyglet.gl.glColor4f(0,1.0,0,1.0)
-		pyglet.graphics.draw(2, pyglet.gl.GL_LINES, ('v2i', (x1,y1,x2,y2)))
-		pyglet.gl.glColor4f(1.0,1.0,1.0,1.0)
-
-	#draw bounding box
-	v1 = object1.getBoundingVertices()
-	for vertex in range(len(v1)):
-		pos = object1.getPosition()
-		origin = object1.getSize()
-		v1[vertex] = v1[vertex] + pos + origin
-		v1[vertex].x = int(v1[vertex].x)
-		v1[vertex].y = int(v1[vertex].y)
-
-	c = [1.0, 0, 0, 1.0]
-	render.drawPolygonOutline(v1,c)
-
+	img1.blit(player.getPosition().x, player.getPosition().y)
 	#draw floor
 	pyglet.gl.glColor4f(1.0,0,0,1.0)
 	pyglet.graphics.draw_indexed(4, pyglet.gl.GL_TRIANGLES,
     [0, 1, 2, 1, 2, 3],
-    ('v2i', (0, 20,
-             window.get_size()[0], 20,
+    ('v2i', (floor.getPosition().x - floor.getSize().x, 20,
+            floor.getPosition().x + floor.getSize().x, 20,
              0, 0,
-             window.get_size()[0], 0)))
+             floor.getPosition().x + floor.getSize().x, 0)))
 
 	pyglet.gl.glColor4f(1.0,1.0,1.0,1.0)
+	#draw separating axes
+	for axis in cm.getSeparatingAxes(bb1):
+		origin = player.getWorldPosition()
+		render.drawVector(axis, origin, [0,1.0,0,1.0])
+
+	for axis in cm.getSeparatingAxes(bb2):
+		origin = floor.getWorldPosition()
+		render.drawVector(axis, origin, [0,1.0,0,1.0])
+
+	#get separation
+	separatingVector = player.getWorldPosition() - floor.getWorldPosition()
+	
+	#draw projections
+	for axis in cm.getSeparatingAxes(bb2):
+		projection = separatingVector.project(axis)
+		projectedVector = axis.normalize() * projection
+		#render.drawVector(projectedVector, floor.getWorldPosition(), [1.0,0,1.0,1.0])	
+
+
+	render.renderAll()
+
+	fps.draw()
+
+
+	#draw player info
+
+
+def genVectorLabel(vector, origin, x='left', y='top'):
+	label = pyglet.text.Label(str(vector),
+	font_name='Times New Roman',
+	font_size=12,
+	x=(origin + vector / 2).x, y=(origin + vector / 2).y,
+	anchor_x=x, anchor_y=y)
+	return label
+
+
 
 def update(dt):
 	#apply gravity
-	#object1.setAcceleration(object1.getAcceleration().x, g.g())
-	object1.update()
 
-	collision = cm.performSAT(bb1, bb2, object1.getPosition(), floor.getPosition())
-	
+	player.update()
+	collision = cm.performSAT(bb2, bb1, floor.getWorldPosition(), (player.getWorldPosition() + player.getActualVelocityVector()), render)
+
+	if collision != -1:
+		player.land()
+
 
 @window.event
 def on_key_press(symbol, modifiers):
 	if symbol == key.UP:
-		object1.setVelocityY(4)
-	elif symbol == key.DOWN:
-		object1.setVelocityY(-4)
+		player.jump()
 	elif symbol == key.RIGHT:
-		object1.setVelocityX(4)
+		player.move([movementSpeed,0])
 	elif symbol == key.LEFT:
-		object1.setVelocityX(-4)
+		player.move([-movementSpeed,0])
 
 @window.event
 def on_key_release(symbol, modifiers):
-	if symbol == key.UP:
-		object1.setVelocityY(0)
-	elif symbol == key.DOWN:
-		object1.setVelocityY(0)
+	if symbol == key.DOWN:
+		player.move([0,movementSpeed])
 	elif symbol == key.RIGHT:
-		object1.setVelocityX(0)
+		player.move([-movementSpeed,0])
 	elif symbol == key.LEFT:
-		object1.setVelocityX(0)
+		player.move([movementSpeed,0])
 
 
 

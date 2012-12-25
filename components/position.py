@@ -1,12 +1,9 @@
+import math
+
 from coordinate import Coordinate
 
 
 class Position(Coordinate):
-	def __init__(self, x, y, z=0):
-		self.x = x
-		self.y = y
-		self.z = z
-	""" Position coordinates.  The only difference here is the z value is optional. """
 	def add(self, x, y, z=0):
 		return super(Position, self).add(x, y, z)
 
@@ -15,3 +12,15 @@ class Position(Coordinate):
 
 	def scale(self, sX, sY, sZ=1):
 		return super(Position, self).scale(sX, sY, sZ)
+
+
+class Ray(Coordinate):
+ 	""" non-origin 2D position vector """
+ 	def __init__(self, point, direction):
+ 		self.point = point
+ 		self.direction = direction
+ 	def rotate(self, degrees):
+ 		angle = math.radians(degrees)
+ 		x = self.direction.x * math.cos(angle) - self.direction.y * math.sin(angle)
+ 		y = self.direction.x * math.sin(angle) + self.direction.y * math.cos(angle)
+ 		return Ray(self.point, Position([x, y]))

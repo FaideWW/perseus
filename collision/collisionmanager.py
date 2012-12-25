@@ -3,7 +3,10 @@ import math
 from axisalignedboundingbox import AxisAlignedBoundingBox
 from boundingsphere import BoundingSphere
 from gameobject.gameobject import GameObject
-from components.vector import Vec2
+from components.vector import Vector
+from components.position import Ray
+
+import render.functions as render
 
 class CollisionManager:
 	def __init__(self):
@@ -167,124 +170,78 @@ class CollisionManager:
 
 				sqdist = math.abs(pos1.x - pos2.x)**2 + math.abs(pos1.y - pos2.y)**2
 				return (bounder1.radius + bounder2.radius)**2 >= sqdist
+	def performSAT(self, bb1, bb2, origin1, origin2, r):
+		"""
+			Separating axis theorem:
+			determines overlap between two convex polygons and on which faces
+			(for concave polygons see pointInPoly())
 
-	def performSAT(self, bb1, bb2, p1, p2):
-		if bb1.getBoundShape() != 'convex' or bb2.getBoundShape() != 'convex':
-			raise TypeError('SAT collision detection is invalid for non-convex shapes')
+			Procedure:
+				for every separating axis in bb1:
+					for every vertex in bb1:
+						project the vertex onto the axis
+						if the vertex is an extrema, save it as max or min
+					repeat for bb2
+					if bb1.max < bb2.min or bb1.min > bb2.max (aka the projections do not overlap):
+						return False
+					else
+						if the overlap is smaller than the previous overlap save as collision_axis
+						continue
+				if this point is reached there is a collision on collision_axis
+		"""
+		collision_axis = 0
+		collision_depth = -1
+		axes = self.getSeparatingAxes(bb1)
+		for i in range(len(axes)):
+			axis = axes[i]
+			projections = []
+			for vertex in bb1.getVertices():
 
-		if bb1.getBoundType() == 'sphere' or bb2.getBoundType == 'sphere':
-			#special case for spheres
-			pass
-		else:
-
-			print 'bb1:', bb1
-			print 'bb2:', bb2
-			print 'p1:', p1
-			print 'p2:', p2
+				projection_point = (vertex).project(axis)
+				projections.append(projection_point)
+			bb1_min = min(projections)
+			bb1_max = max(projections)
 
 
+			projections = []
+			for vertex in bb2.getVertices():
+				projection_point = (vertex + origin2 - origin1).project(axis)
+				projections.append(projection_point)
+				r.drawVector(axis.normalize() * projection_point, (origin1))
+			bb2_min = min(projections)
+			bb2_max = max(projections)
 
-			#check for the less complex shape to be the collider
-			if len(bb1.getVertices()) <= len(bb1.getVertices()):
-				collider = bb1.getVertices()
-				collider_p = p1
-				collidee = bb2.getVertices()
-				collidee_p = p2
+			if bb1_max < bb2_min or bb1_min > bb2_max:
+				#no collision
+				return -1
 			else:
-				collider = bb2.getVertices()
-				collider_p = p2
-				collidee = bb1.getVertices()
-				collidee_p = p1
-
-			# frame bounding objects in world space
-			# also generate vectors for separating axes
-
-			
-			axes = []
-			next = 0
-			
-			for vertex in range(len(collider)):
-				collider[vertex] += collider_p
-				next = vertex + 1								
-				if next == len(collider): 					
-					next = 0					
-					dir_to_next = collider[next] - collider[vertex]
+				if bb1_max > bb2_max:
+					overlap = ((bb1_max - bb1_min) + (bb2_max - bb2_min)) - (bb1_max - bb2_min)
 				else:
-					dir_to_next = collider[next]
-				vec = Vec2(collider[vertex], dir_to_next)
-				axes.append(vec.rotate(90))
-			for vertex in range(len(collidee)):
-				collidee[vertex] += collidee_p
-			print 'collider:'
-			for x in collider:
-				print x
-			print 'collidee:'
-			for x in collidee:
-				print x
+					overlap = ((bb1_max - bb1_min) + (bb2_max - bb2_min)) - (bb2_max - bb1_min)
+				if overlap < collision_depth or collision_depth == -1:
+					collision_axis = i
+					collision_depth = overlap
+		return i
 
 
-			collision_axis = -1
-			last_depth = -1
-			for i in range(len(axes)):
-				#project both bounding objects onto axis to obtain projection vector
-				#if projection vectors overlap, continue
-				#if projection vectors do not overlap, exit.  there is no collision
-				#if all projection vectors overlap, we have a collision
 
-				axis = axes[i]
-				collider_vector_min = collider_vector_max = collidee_vector_min = collidee_vector_max = -1
-
-				for point in collider:
-					#get the dot product of point and axis to find its projection
-					
-					axisPos = point.x * axis.direction.x + point.y * axis.direction.y
-
-					if collider_vector_min == -1 and collider_vector_max == -1:
-						#first point
-						collider_vector_min = collider_vector_max = axisPos
-					elif axisPos < collider_vector_min:
-						#new min
-						collider_vector_min = axisPos
-					elif axisPos > collider_vector_max:
-						#new max
-						collider_vector_max = axisPos
-
-				for point in collidee:
-					#same drill as before
-					axisPos = point.x * axis.direction.x + point.y * axis.direction.y
-					if collidee_vector_min == -1 and collidee_vector_max == -1:
-						collidee_vector_min = collidee_vector_max = axisPos
-					elif axisPos < collidee_vector_min:
-						collider_vector_min = axisPos
-					elif axisPos > collidee_vector_max:
-						collidee_vector_max = axisPos
-
-				#check for a lack of overlap
-				if collider_vector_min < collidee_vector_max and collider_vector_max > collidee_vector_min:
-					#there's no intersection along this axis; therefore no collision
-					break
-				else:
-					#determine the depth of this overlap
-					if collider_vector_min <= collidee_vector_min:
-						depth = (collider_vector_max - collider_vector_min) + (collidee_vector_max - collidee_vector_min) - (collidee_vector_max - collider_vector_min)
-					else:
-						depth = (collider_vector_max - collider_vector_min) + (collidee_vector_max - collidee_vector_min) - (collider_vector_max - collidee_vector_min)
-					if last_depth < 0 or last_depth > depth:
-						last_depth = depth
-						collision_axis = i
-						print 'collision!'
-						print 'axis', collision_axis
-						print 'depth:', depth
-			return collision_axis
-
-	def getSeparatingAxes(self, boundingbox, position):
+		
+	def getSeparatingAxes(self, boundingbox):
 		vertices = boundingbox.getVertices()
 		axes = []
-		for side in range(len(vertices)):
-			n = side + 1
+		for vec in range(len(vertices)):
+			n = vec + 1
 			if n == len(vertices):
 				n = 0
-			direction = vertices[n] - vertices[side]
-			vec = Vec2(position, direction)
-			axes.append(vec.rotate(90))
+			v = (vertices[vec] - vertices[n]).rot(90)
+
+			#check if we have two of the same axis (always the case with parallelograms)
+			hasAxis = False
+			for x in axes:
+				if v.isParallel(x):
+					hasAxis = True
+			if not hasAxis:
+				axes.append(v)
+
 		return axes

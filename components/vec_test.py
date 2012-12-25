@@ -1,93 +1,49 @@
 import math
-import math
-
 class Vector(list):
-	""" basic list of 3 floats with vector math functionality """
-
+	""" basic list of ints with vector math functionality """
 
 	def __init__(self, lst = []):
-		list.__init__(self, lst[:3])
+		list.__init__(self, lst)
 		while len(self) < 3:
 			self.append(0)
 		self.x = self[0]
 		self.y = self[1]
 		self.z = self[2]
 
-		#floating point precision margin of 2 decimal places
-		self.floatMargin = 10**-2
-
-	def __iadd__(self, other):
-		# inline addition is called when the shorthand operator += is used
-		self = self + other
-		return self
-
 	def __add__(self, other):
-		newL = Vector(self)
+		newL = list(self)
 		if (len(self) <= len(other)):
 			l = len(self)
 		else:
 			l = len(other)
 		for i in range(l):
 			newL[i] += other[i]
-		return Vector(newL[:3])
-
-	def __isub__(self, other):
-		self = self - other
-		return self
+		return newL
 
 	def __sub__(self, other):
-		newL = Vector(self)
-
+		newL = list(self)
 		if (len(self) <= len(other)):
 			l = len(self)
 		else:
 			l = len(other)
 		for i in range(l):
 			newL[i] -= other[i]
-
-		return Vector(newL[:3])
-
-	def __imul__(self, factor):
-		self = self * factor
-		return self
+		return newL
 
 	def __mul__(self, factor):
 		""" multiply vector by a scalar factor """
 
-		ret = Vector(self)
+		ret = list(self)
 		for x in range(len(ret)):
 			ret[x] = ret[x] * float(factor)
-		return Vector(ret[:3])
-
-	def __idiv__(self, factor):
-		self = self / factor
-		return self
+		return ret
 
 	def __div__ (self, factor):
 		# should return floating point values
-		ret = Vector(self)
+		ret = list(self)
 		for x in range(len(ret)):
 			ret[x] = ret[x] / float(factor)
-		return Vector(ret[:3])
-
-	def __ifloordiv(self, factor):
-		self = self // factor
-		return self
-
-	def __floordiv__(self, factor):
-		# equivalent to self // factor
-		ret = Vector(self)
-		for x in range(len(ret)):
-			ret[x] = ret[x] // factor
-		return Vector(ret[:3])
-
-	def __eq__(self, other):
-		#since we're dealing with floating point values, we need a comparison that allows for some error margin
-		areEqual = True
-		for i in range(len(self)):
-			if abs(self[i] - other[i]) > self.floatMargin:
-				areEqual = False
-		return areEqual
+		return ret
 
 	def dot(self, other):
 		d = 0
@@ -107,7 +63,7 @@ class Vector(list):
 			b.append(0)
 
 		c = Vector([a[1]*b[2] - a[2]*b[1], a[2]*b[0] - a[0]*b[2], a[0]*b[1] - a[1]*b[0]])
-		return Vector(c[:3])
+		return c
 
 	def rot(self, angle):
 		""" rotate a 2d vector by specific angle about Z axis """
@@ -117,8 +73,7 @@ class Vector(list):
 
 		rotV = Vector([x,y])
 
-
-		return Vector(rotV[:3])
+		return rotV
 
 	def mag(self):
 		""" returns magnitude of self """
@@ -131,7 +86,6 @@ class Vector(list):
 	def normalize(self):
 		""" return unit vector in the direction of self """
 		mag = self.mag()
-		if mag == 0: return 0
 		return self / mag
 
 	def project(self, axis):
@@ -140,15 +94,23 @@ class Vector(list):
 		projection = self.dot(unit_axis)
 		return projection
 
-	def isParallel(self, other):
-		""" returns true if both vectors have the same direction """
-		return self.normalize().rot(180) == other.normalize()
-
 	def __str__(self):
 		s = '['
 		for i in self:
-			if abs(i) < self.floatMargin:
-				i = 0
 			s += str(i) + ', '
 		s = s[:-2] + ']'
 		return s
+
+v1 = Vector([2,2])
+v2 = Vector([3,1])
+v3 = Vector([2,0])
+v4 = v2.rot(90)
+
+print v1 + v2, v2 - v1, v1 * 2, v2 / 4
+print v1.normalize(), v2.normalize(), v3.normalize()
+print
+print v2.project(v3), v1.project(v2), v4.project(v2)
+print
+print v1.dot(v2)
+print v1.cross(v2)
+print v1.rot(180)

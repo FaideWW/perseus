@@ -13,10 +13,10 @@ class AxisAlignedBoundingBox(BoundingObject):
 		return "convex"
 
 	def getVertices(self):
-		x1 = Position((self.half_width * -1), (self.half_height * -1))
-		x2 = Position(self.half_width, (self.half_height * -1))
-		y1 = Position((self.half_width * -1), self.half_height)
-		y2 = Position(self.half_width, self.half_height)
+		x1 = Position([(self.half_width * -1), (self.half_height * -1)])
+		x2 = Position([self.half_width, (self.half_height * -1)])
+		y1 = Position([(self.half_width * -1), self.half_height])
+		y2 = Position([self.half_width, self.half_height])
 		return [x1, x2, y2, y1]
 
 	def __str__(self):

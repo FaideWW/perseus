@@ -1,6 +1,6 @@
 class Gravity(object):
 	""" Gravitational force that always points down (270 degrees) """
-	def __init__(self, accel=-2):
+	def __init__(self, accel=-0.5):
 		self.accel = accel
 
 	def g(self):
