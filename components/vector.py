@@ -50,7 +50,6 @@ class Vector(list):
 		""" equivalent of self X other """
 		while len(self) < 3:
 			self.append(0)
-		while len(other) < 3:
 			other.append(0)
 
 		c = [self[1]*other[2] - self[2]*other[1], self[2]*other[0] - self[0]*other[2], self[0]*other[1] - self[1]*other[0]]
