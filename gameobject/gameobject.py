@@ -96,15 +96,15 @@ class GameObject(object):
 	def setAcceleration(self, acc):
 		self.acc = Velocity(acc)
 
-	def update(self):
+	def update(self, dt):
 		#acceleration first
-		self.vel += self.acc
+		self.vel += self.acc * dt
 
 		if self.vel.mag() > self.max_speed:
 			#cap speed at the predefined value
-			v = self.vel.normalize() * self.max_speed
+			v = self.vel.normalize() * self.max_speed)
 		else:
 			v = self.vel
 
 		#then position
-		self.pos += v
+		self.pos += v * dt

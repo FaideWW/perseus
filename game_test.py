@@ -119,7 +119,7 @@ def genVectorLabel(vector, origin, x='left', y='top'):
 def update(dt):
 	#apply gravity
 
-	player.update()
+	player.update(dt)
 	collision = cm.performSAT(bb2, bb1, floor.getWorldPosition(), (player.getWorldPosition() + player.getActualVelocityVector()), render)
 
 	if collision != -1:
