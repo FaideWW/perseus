@@ -7,6 +7,7 @@ class Renderer(object):
 
 	def __init__(self):
 		self.renderQueue = []
+		self.batcher = pyglet.graphics.Batch()
 
 	def drawPolygonOutline(self, vertices, color):
 		for p in range(len(vertices)):
@@ -15,15 +16,75 @@ class Renderer(object):
 				n = 0
 			point = vertices[p]
 			next = vertices[n]
-			self.renderQueue.append([color, 2, pyglet.gl.GL_LINES, ('v2f', (point.x, point.y, next.x, next.y))])
+			self.renderQueue.append(['draw', color, 2, pyglet.gl.GL_LINES, ('v2f', (point.x, point.y, next.x, next.y))])
 			#pyglet.graphics.draw(2, pyglet.gl.GL_LINES, ('v2f', (point.x, point.y, next.x, next.y)))
 
 		return len(self.renderQueue)
 
 	def drawVector(self, vector, origin = Coordinate([0,0,0]), color = [1.0,1.0,1.0,1.0]):
-		self.renderQueue.append([color, 2, pyglet.gl.GL_LINES, ('v2f', (origin.x, origin.y, origin.x + vector.x, origin.y + vector.y))])
+		self.renderQueue.append(['draw', color, 2, pyglet.gl.GL_LINES, ('v2f', (origin.x, origin.y, origin.x + vector.x, origin.y + vector.y))])
 		#pyglet.graphics.draw(2, pyglet.gl.GL_LINES, ('v2f', (origin.x, origin.y, origin.x + vector.x, origin.y + vector.y)))
 		return len(self.renderQueue)
+
+	def drawTile(self, tile, position, tileSize, color):
+		#print tile.tiletype
+		if tile.tiletype == 'none':
+			
+			return
+			
+		print tile.tiletype, tile.char, position, tileSize
+		pyglet.graphics.draw_indexed(
+			4, 
+			pyglet.gl.GL_TRIANGLES, 
+			[0,1,2,1,2,3], 
+			('v2i', 
+				(position.x, position.y,
+				position.x + tileSize.x, position.y,
+				position.x, position.y + tileSize.y,
+				position.x + tileSize.x, position.y + tileSize.y)))
+		
+	def drawMap(self, tilemap, window_res, color):
+		tileSize = Coordinate([window_res.x / tilemap.width, window_res.y / tilemap.height])
+		pyglet.gl.glColor4f(0,1.0,0,1.0)
+		tile_x = 0
+		tile_y = 0
+
+		for tilerow in tilemap.mapData:
+			for tile in tilerow:
+				tilepos = Coordinate([tile_x * tileSize.x, tile_y * tileSize.y])
+				self.drawTile(tile, tilepos, tileSize, color)
+				tile_x += 1
+			tile_x = 0
+			tile_y += 1
+		pyglet.gl.glColor4f(1.0,1.0,1.0,1.0)
+
+	def prepareMap(self, tilemap, window_res, color):
+		""" Index all of the map data and add it to the batch """
+		tileSize = Coordinate([window_res.x / tilemap.width, window_res.y / tilemap.height])
+		tile_x = 0
+		tile_y = 0
+
+		for tilerow in tilemap.mapData:
+			for tile in tilerow:
+				tilepos = Coordinate([tile_x * tileSize.x, tile_y * tileSize.y])
+				if tile.tiletype != 'none':
+					tilemap.mapIndex[tile_y][tile_x] = self.batcher.add_indexed(
+						4, 
+						pyglet.gl.GL_TRIANGLES, 
+						None,
+						[0,1,2,1,2,3], 
+						('v2i', 
+							(tilepos.x, tilepos.y,
+							tilepos.x + tileSize.x, tilepos.y,
+							tilepos.x, tilepos.y + tileSize.y,
+							tilepos.x + tileSize.x, tilepos.y + tileSize.y)),
+						('c3B', (0,255,0,0,255,0,0,255,0,0,255,0,))
+						)
+				tile_x += 1
+			tile_x = 0
+			tile_y += 1
+
+		return tilemap
 
 	def setColor(self, color):
 		pyglet.gl.glColor4f(color[0], color[1], color[2], color[3])
@@ -33,7 +94,9 @@ class Renderer(object):
 
 	def renderAll(self):
 		for job in self.renderQueue:
-			self.setColor(job[0])
-			pyglet.graphics.draw(job[1], job[2], job[3])
+
+			self.setColor(job[1])
+			if job[0] == 'draw':
+				pyglet.graphics.draw(job[2], job[3], job[4])
 			self.resetColor()
 		self.renderQueue = []

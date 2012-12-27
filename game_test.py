@@ -1,5 +1,6 @@
 import pyglet
 import time
+import sys
 from pyglet.window import key
 
 from gameobject.gameobject import GameObject
@@ -11,14 +12,21 @@ from components.coordinate import Coordinate
 from components.vector import Vector
 from components.forces import Gravity
 from render.functions import Renderer
+from maps.maps import Map
 
 
 window = pyglet.window.Window()
 
+window_res = Vector(window.get_size())
+
+print window_res
 
 movementSpeed = 4
 fps = pyglet.clock.ClockDisplay()
 render = Renderer()
+
+mapPath = '/'.join(sys.argv[0].rsplit('/')[:-1])
+m = Map(mapPath + '/maps/map1')
 
 
 cm = CollisionManager()
@@ -52,12 +60,13 @@ ob1Pos = pyglet.text.Label(str(player.getPosition()),
 	x=player.getPosition().x, y=player.getPosition().y,
 	anchor_x='center', anchor_y='center')
 
-
+m = render.prepareMap(m, window_res, [1.0,1.0,1.0,1.0])
 
 @window.event
 def on_draw():
 	window.clear()
 
+	render.batcher.draw()
 	img1.blit(player.getPosition().x, player.getPosition().y)
 	#draw floor
 	pyglet.gl.glColor4f(1.0,0,0,1.0)
@@ -86,6 +95,7 @@ def on_draw():
 		projection = separatingVector.project(axis)
 		projectedVector = axis.normalize() * projection
 		#render.drawVector(projectedVector, floor.getWorldPosition(), [1.0,0,1.0,1.0])	
+
 
 
 	render.renderAll()
