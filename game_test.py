@@ -120,6 +120,7 @@ def update(dt):
 	#apply gravity
 
 	player.update(dt)
+	print dt
 	collision = cm.performSAT(bb2, bb1, floor.getWorldPosition(), (player.getWorldPosition() + player.getActualVelocityVector()), render)
 
 	if collision != -1:

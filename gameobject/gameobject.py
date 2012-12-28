@@ -102,7 +102,7 @@ class GameObject(object):
 
 		if self.vel.mag() > self.max_speed:
 			#cap speed at the predefined value
-			v = self.vel.normalize() * self.max_speed)
+			v = self.vel.normalize() * self.max_speed
 		else:
 			v = self.vel
 

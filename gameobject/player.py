@@ -22,7 +22,7 @@ class Player(gameobject.GameObject):
 			self.addVelocityY(5)
 			self.onGround = False
 
-	def update(self):
+	def update(self, dt):
 		if not self.onGround:
 			self.setAcceleration([self.getAcceleration().x, self.g.g()])
 		else:
