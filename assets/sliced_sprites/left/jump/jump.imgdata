@@ -1,5 +1,5 @@
 0,offset:0 0,region:0 0 20 20
-1,offset:0 0,region:20 0 40 20
-2,offset:0 0,region:0 20 20 40
-3,offset:0 0,region:20 20 40 40
+1,offset:20 0,region:20 0 40 20
+2,offset:20 20,region:20 20 40 40
+3,offset:0 20,region:0 20 20 40
 4,offset:0 0,region:0 0 40 40

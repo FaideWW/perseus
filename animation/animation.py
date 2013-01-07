@@ -95,7 +95,7 @@ class SpritesheetAnimation(object):
 	def changeFrames(self, newframe):
 		self.spriteRenderer.image = self.images[newframe]
 
-		if newframe+1 == len(self.images) and not self.isRepeating:
+		if newframe+1 == len(self.images) and not self.repeats:
 			self.paused = True
 
 
@@ -118,7 +118,7 @@ class SpritesheetAnimation(object):
 
 # 		self.applyTransformations(self.imglist, self.imgdata)
 
-# 		self.isRepeating = repeats
+# 		self.repeats = repeats
 # 		self.position = position
 # 		self.spriteRenderer = pyglet.sprite.Sprite(self.imglist[0])
 
@@ -203,7 +203,7 @@ class SpritesheetAnimation(object):
 # 		self.spriteRenderer.set_position(self.position.x, self.position.y)
 
 
-# 		if newframe+1 == len(self.imglist) and not self.isRepeating:
+# 		if newframe+1 == len(self.imglist) and not self.repeats:
 # 			self.paused = True
 
 #anim = Animation('left/jump', .5, Position([100,100]))
