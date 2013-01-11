@@ -144,6 +144,10 @@ class Vector(list):
 		""" returns true if both vectors have the same direction """
 		return self.normalize().rot(180) == other.normalize()
 
+	@staticmethod
+	def zero():
+		return Vector([0,0,0])
+
 	def __str__(self):
 		s = '['
 		for i in self:

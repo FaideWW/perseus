@@ -29,7 +29,6 @@ class Renderer(object):
 	def drawTile(self, tile, position, tileSize, color):
 		#print tile.tiletype
 		if tile.tiletype == 'none':
-			
 			return
 			
 		print tile.tiletype, tile.char, position, tileSize
@@ -78,7 +77,7 @@ class Renderer(object):
 							tilepos.x + tileSize.x, tilepos.y,
 							tilepos.x, tilepos.y + tileSize.y,
 							tilepos.x + tileSize.x, tilepos.y + tileSize.y)),
-						('c3B', (0,255,0,0,255,0,0,255,0,0,255,0,))
+						('c3B', (50,0,0,50,0,0,50,0,0,50,0,0,))
 						)
 				tile_x += 1
 			tile_x = 0
@@ -92,11 +91,22 @@ class Renderer(object):
 	def resetColor(self):
 		pyglet.gl.glColor4f(1.0,1.0,1.0,1.0)
 
-	def renderAll(self):
+	def renderAll(self, cam=None):
+		if cam != None:
+			x = cam.translateToCamSpace(Coordinate.zero()).x
+			y = cam.translateToCamSpace(Coordinate.zero()).y
+			z = 0
+		else:
+			x = 0
+			y = 0
+			z = 0
+		pyglet.gl.glPushMatrix()
+		pyglet.gl.glTranslatef(x, y, z)
 		for job in self.renderQueue:
-
-			self.setColor(job[1])
-			if job[0] == 'draw':
-				pyglet.graphics.draw(job[2], job[3], job[4])
-			self.resetColor()
+		 	self.setColor(job[1])
+		 	if job[0] == 'draw':
+		 		pyglet.graphics.draw(job[2], job[3], job[4])
+		 	self.resetColor()
+		self.batcher.draw()
 		self.renderQueue = []
+		pyglet.gl.glPopMatrix()

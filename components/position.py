@@ -13,6 +13,12 @@ class Position(Coordinate):
 	def scale(self, sX, sY, sZ=1):
 		return super(Position, self).scale(sX, sY, sZ)
 
+	def distTo(self, pos):
+		return (self - pos).mag()
+
+	def dirTo(self, pos):
+		return (self - pos).normalize()
+
 
 class Ray(Coordinate):
  	""" non-origin 2D position vector """

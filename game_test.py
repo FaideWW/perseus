@@ -13,6 +13,7 @@ from components.vector import Vector
 from components.forces import Gravity
 from render.functions import Renderer
 from maps.maps import Map
+from camera.camera import Camera
 
 
 window = pyglet.window.Window()
@@ -32,7 +33,10 @@ m = Map(mapPath + '/maps/map1')
 cm = CollisionManager()
 g = Gravity()
 
-player = Player(0)
+object_counter = 0
+
+player = Player(object_counter)
+object_counter += 1
 img1 = 'icon.png'
 bb1 = AxisAlignedBoundingBox(24, 24)
 cc1 = ElasticCollider(1)
@@ -44,7 +48,9 @@ player.setPosition(100,100)
 player.setVelocity(0,0)
 player.setSize(48,48)
 
-floor = GameObject(1)
+floor = GameObject(object_counter)
+
+object_counter += 1
 bb2 = AxisAlignedBoundingBox((window.get_size()[0]) / 2,10)
 floor.setBoundingBox(bb2)
 floor.setPosition(0,0)
@@ -53,6 +59,11 @@ floor.setSize(window.get_size()[0], 20)
 img1 = pyglet.resource.image(player.getSprite())
 
 vec1 = Vector([0,0])
+
+
+GAME_CAMERA = Camera(object_counter, 640, 480, player, Vector([100, 100]))
+object_counter += 1
+
 
 ob1Pos = pyglet.text.Label(str(player.getPosition()),
 	font_name='Times New Roman',
@@ -66,7 +77,6 @@ m = render.prepareMap(m, window_res, [1.0,1.0,1.0,1.0])
 def on_draw():
 	window.clear()
 
-	render.batcher.draw()
 	img1.blit(player.getPosition().x, player.getPosition().y)
 	#draw floor
 	pyglet.gl.glColor4f(1.0,0,0,1.0)
@@ -98,7 +108,7 @@ def on_draw():
 
 
 
-	render.renderAll()
+	render.renderAll(GAME_CAMERA)
 
 	fps.draw()
 
@@ -120,7 +130,7 @@ def update(dt):
 	#apply gravity
 
 	player.update(dt)
-	print dt
+	GAME_CAMERA.update(dt)
 	collision = cm.performSAT(bb2, bb1, floor.getWorldPosition(), (player.getWorldPosition() + player.getActualVelocityVector()), render)
 
 	if collision != -1:

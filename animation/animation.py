@@ -1,12 +1,6 @@
-import sys, os
-import pyglet
-from pyglet.window import key
 import math
 
 from components.position import Position
-
-asset_path = '/'.join(os.path.abspath(__file__).rsplit('/')[:-2]) + '/assets'
-
 
 class SpritesheetAnimation(object):
 	def __init__(self, spritesheet, anim_data, fps, position, repeats=True):
@@ -97,49 +91,3 @@ class SpritesheetAnimation(object):
 
 		if newframe+1 == len(self.images) and not self.repeats:
 			self.paused = True
-
-spritesheet_path = asset_path + '/sliced_sprites/left/jump/left_jump_0.png'
-data_path = asset_path + '/sliced_sprites/left/jump/jump.imgdata'
-anim = SpritesheetAnimation(spritesheet_path, data_path, 1, Position([100, 100]))
-#anim.setSpecialImageData({'offset': Position([100,100])}, 1)
-
-window = pyglet.window.Window()
-fps = pyglet.clock.ClockDisplay()
-
-
-totalseconds = 0
-
-
-label = pyglet.text.Label(str(totalseconds),
-	font_name='Times New Roman',
-	font_size=36,
-	x=window.width//2, y=window.height//2,
-	anchor_x='center', anchor_y='center')
-
-@window.event
-def on_draw():
-	window.clear()
-	label.draw()
-	anim.draw()
-	fps.draw()
-	#image.blit(0,0)
-
-
-@window.event
-def on_key_press(symbol, modifiers):
-	if symbol == key.SPACE:
-		anim.togglePause()
-
-
-# log all events (including mouse movement, which can get quite annoying)
-# window.push_handlers(pyglet.window.event.WindowEventLogger())
-
-def update(dt):
-	global totalseconds
-	totalseconds += dt
-	label.text = str(math.floor(totalseconds))
-	anim.update(dt)
-	pass
-
-pyglet.clock.schedule_interval(update, 1/120.0)
-pyglet.app.run()
