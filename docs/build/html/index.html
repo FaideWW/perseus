@@ -1,0 +1,168 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Project Perseus &mdash; Perseus 0.0.1 prototype 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1 prototype 1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Perseus 0.0.1 prototype 1 documentation" href="#" />
+    <link rel="next" title="Introduction to Perseus" href="intro.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction to Perseus"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="project-perseus">
+<h1>Project Perseus<a class="headerlink" href="#project-perseus" title="Permalink to this headline">¶</a></h1>
+<p>This is the documentation for Project Perseus.  If you&#8217;re new here, see the <a class="reference internal" href="intro.html"><em>Introduction to Perseus</em></a>.</p>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction to Perseus</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#technical-elements">Technical Elements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#synchronising-the-draw-and-game-cycles">Synchronising the draw and game cycles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#phases-of-the-game-cycle">Phases of the game cycle</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vinfo.html">Version Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="renderer.html"><tt class="docutils literal"><span class="pre">render</span></tt> &#8212; Renderer and associated functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="renderer.html#operation-of-the-draw-sequence">Operation of the Draw Sequence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="renderer.html#textured-batch-groups">Textured Batch Groups</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="collision.html"><tt class="docutils literal"><span class="pre">collision</span></tt> &#8212; Collision Operations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="collision.html#the-collision-sequence">The Collision Sequence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collision.html#checking-for-collisions-the-separating-axis-theorem">Checking for Collisions - the Separating Axis Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collision.html#resolving-collisions">Resolving Collisions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collision.html#collidable-objects">Collidable Objects</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="animation.html"><tt class="docutils literal"><span class="pre">animation</span></tt> &#8212; Sprite animation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gameobject.html"><tt class="docutils literal"><span class="pre">gameobject</span></tt> &#8212; GameObjects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="player.html"><tt class="docutils literal"><span class="pre">player</span></tt> &#8212; Player Character</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="player.html#managing-state">Managing State</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="playercontroller.html"><tt class="docutils literal"><span class="pre">playercontroller</span></tt> &#8212; PlayerController</a></li>
+<li class="toctree-l1"><a class="reference internal" href="map.html"><tt class="docutils literal"><span class="pre">map</span></tt> &#8212; Map and Tile operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera.html"><tt class="docutils literal"><span class="pre">camera</span></tt> &#8212; Camera operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="component.html"><tt class="docutils literal"><span class="pre">component</span></tt> &#8212; List and Vector Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="component.html#vector-operations">Vector operations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="appendix.html#distinction-between-different-draw-spaces">Distinction between different draw-spaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix.html#translating-between-draw-spaces">Translating between draw-spaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix.html#broad-phase-collision-detection">Broad-phase Collision Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix.html#narrow-phase-colision-detection-using-the-separating-axis-theorem">Narrow-phase Colision Detection using the Separating Axis Theorem</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Project Perseus</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="next chapter">Introduction to Perseus</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction to Perseus"
+             >next</a> |</li>
+        <li><a href="#">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, cmcFaide.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

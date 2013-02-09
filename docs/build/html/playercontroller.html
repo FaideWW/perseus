@@ -1,0 +1,222 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>playercontroller — PlayerController &mdash; Perseus 0.0.1 prototype 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1 prototype 1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Perseus 0.0.1 prototype 1 documentation" href="index.html" />
+    <link rel="next" title="map — Map and Tile operations" href="map.html" />
+    <link rel="prev" title="player — Player Character" href="player.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="map.html" title="map — Map and Tile operations"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="player.html" title="player — Player Character"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-playercontroller">
+<span id="playercontroller-playercontroller"></span><h1><a class="reference internal" href="#module-playercontroller" title="playercontroller: Handles input that directly controls the player character in game."><tt class="xref py py-mod docutils literal"><span class="pre">playercontroller</span></tt></a> &#8212; PlayerController<a class="headerlink" href="#module-playercontroller" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="#playercontroller.PlayerController" title="playercontroller.PlayerController"><tt class="xref py py-class docutils literal"><span class="pre">PlayerController</span></tt></a> is the interface between Pyglet&#8217;s input events and the player character&#8217;s actions in game.  <a class="reference internal" href="#playercontroller.PlayerController" title="playercontroller.PlayerController"><tt class="xref py py-class docutils literal"><span class="pre">PlayerController</span></tt></a> provides an abstraction for the controls that allows keys to be rebound without having adverse or unintended effects on the game.</p>
+<p><tt class="xref py py-class docutils literal"><span class="pre">PlayerControllers</span></tt> have a one-to-one relationship with <tt class="xref py py-class docutils literal"><span class="pre">Player</span></tt> objects.</p>
+<hr class="docutils" />
+<dl class="class">
+<dt id="playercontroller.PlayerController">
+<em class="property">class </em><tt class="descclassname">playercontroller.</tt><tt class="descname">PlayerController</tt><big>(</big><em>player</em><big>)</big><a class="headerlink" href="#playercontroller.PlayerController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an instance of the controller that is bound to a <tt class="xref py py-class docutils literal"><span class="pre">Player</span></tt> object.</p>
+<dl class="method">
+<dt id="playercontroller.PlayerController.bindKeys">
+<tt class="descname">bindKeys</tt><big>(</big><em>key_config</em><big>)</big><a class="headerlink" href="#playercontroller.PlayerController.bindKeys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a key configuration file and maps each action to a particular key.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="playercontroller.PlayerController.keyDown">
+<tt class="descname">keyDown</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#playercontroller.PlayerController.keyDown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accepts a key press.  If the key is mapped to an action and isn&#8217;t already on the list of pressed keys, then perform that action.</p>
+<p>Adds the key to the list of pressed keys.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="playercontroller.PlayerController.keyUp">
+<tt class="descname">keyUp</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#playercontroller.PlayerController.keyUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the key release is mapped to an action, perform that action.</p>
+<p>Removes the key from the list of pressed keys.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="playercontroller.PlayerController.leftPress">
+<tt class="descname">leftPress</tt><big>(</big><big>)</big><a class="headerlink" href="#playercontroller.PlayerController.leftPress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls <tt class="docutils literal"><span class="pre">Player.left()</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="playercontroller.PlayerController.rightPress">
+<tt class="descname">rightPress</tt><big>(</big><big>)</big><a class="headerlink" href="#playercontroller.PlayerController.rightPress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls <tt class="docutils literal"><span class="pre">Player.right()</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="playercontroller.PlayerController.upPress">
+<tt class="descname">upPress</tt><big>(</big><big>)</big><a class="headerlink" href="#playercontroller.PlayerController.upPress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls <tt class="docutils literal"><span class="pre">Player.up()</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="playercontroller.PlayerController.downPress">
+<tt class="descname">downPress</tt><big>(</big><big>)</big><a class="headerlink" href="#playercontroller.PlayerController.downPress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls <tt class="docutils literal"><span class="pre">Player.down()</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="playercontroller.PlayerController.leftRelease">
+<tt class="descname">leftRelease</tt><big>(</big><big>)</big><a class="headerlink" href="#playercontroller.PlayerController.leftRelease" title="Permalink to this definition">¶</a></dt>
+<dd><p>If both left and right keys are unpressed, calls <tt class="docutils literal"><span class="pre">Player.stop()</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="playercontroller.PlayerController.rightRelease">
+<tt class="descname">rightRelease</tt><big>(</big><big>)</big><a class="headerlink" href="#playercontroller.PlayerController.rightRelease" title="Permalink to this definition">¶</a></dt>
+<dd><p>If both left and right keys are unpressed, calls <tt class="docutils literal"><span class="pre">Player.stop()</span></tt></p>
+</dd></dl>
+
+</dd></dl>
+
+<hr class="docutils" />
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The following is not included in the current version.  It was originally planned for this release but was cut to save time.  It will be included in the future.</p>
+</div>
+<dl class="class">
+<dt id="playercontroller.KeyCombination">
+<em class="property">class </em><tt class="descclassname">playercontroller.</tt><tt class="descname">KeyCombination</tt><big>(</big><em>key_combination</em>, <em>mapping</em><span class="optional">[</span>, <em>ordered=True</em><span class="optional">[</span>, <em>exclusive=True</em><span class="optional">]</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#playercontroller.KeyCombination" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a set of keys that when pressed in combination, performs a particular action as defined by mapping.</p>
+<dl class="method">
+<dt id="playercontroller.KeyCombination.isEqual">
+<tt class="descname">isEqual</tt><big>(</big><em>key_list</em><big>)</big><a class="headerlink" href="#playercontroller.KeyCombination.isEqual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests a key press combination (formatted as a list) for equivalency.</p>
+<p>A combination is equivalent if:</p>
+<ul class="simple">
+<li>If <tt class="docutils literal"><span class="pre">ordered</span></tt> is <tt class="docutils literal"><span class="pre">True</span></tt>, the lists in the same order.</li>
+<li>If <tt class="docutils literal"><span class="pre">ordered</span></tt> is <tt class="docutils literal"><span class="pre">False</span></tt>, every element in <tt class="docutils literal"><span class="pre">key_list</span></tt> is found in the <a class="reference internal" href="#playercontroller.KeyCombination" title="playercontroller.KeyCombination"><tt class="xref py py-class docutils literal"><span class="pre">KeyCombination</span></tt></a></li>
+</ul>
+<p>AND</p>
+<ul class="simple">
+<li>If <tt class="docutils literal"><span class="pre">exclusive</span></tt> is <tt class="docutils literal"><span class="pre">True</span></tt>, <tt class="docutils literal"><span class="pre">key_list</span></tt> contains only the elements found in the combination</li>
+</ul>
+<p>Returns <tt class="docutils literal"><span class="pre">True</span></tt> if the sequence is equivalent, or <tt class="docutils literal"><span class="pre">False</span></tt> if not.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="playercontroller.KeySequence">
+<em class="property">class </em><tt class="descclassname">playercontroller.</tt><tt class="descname">KeySequence</tt><big>(</big><em>key_sequence</em>, <em>mapping</em><big>)</big><a class="headerlink" href="#playercontroller.KeySequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a set of keys that when typed in sequence, performs a particular action.</p>
+<dl class="method">
+<dt id="playercontroller.KeySequence.isEqual">
+<tt class="descname">isEqual</tt><big>(</big><em>key_list</em><big>)</big><a class="headerlink" href="#playercontroller.KeySequence.isEqual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests a key sequence for equivalency.</p>
+<p>A sequence is equivalent if and only if the two lists are exactly equal.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="player.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">player</span></tt> &#8212; Player Character</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="map.html"
+                        title="next chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">map</span></tt> &#8212; Map and Tile operations</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/playercontroller.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="map.html" title="map — Map and Tile operations"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="player.html" title="player — Player Character"
+             >previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, cmcFaide.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

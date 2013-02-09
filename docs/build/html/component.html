@@ -1,0 +1,206 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>component — List and Vector Components &mdash; Perseus 0.0.1 prototype 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1 prototype 1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Perseus 0.0.1 prototype 1 documentation" href="index.html" />
+    <link rel="next" title="Appendix" href="appendix.html" />
+    <link rel="prev" title="camera — Camera operations" href="camera.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="appendix.html" title="Appendix"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="camera.html" title="camera — Camera operations"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-component">
+<span id="component-list-and-vector-components"></span><h1><a class="reference internal" href="#module-component" title="component: Includes various classes that are core to the game but do not fit in any other modules."><tt class="xref py py-mod docutils literal"><span class="pre">component</span></tt></a> &#8212; List and Vector Components<a class="headerlink" href="#module-component" title="Permalink to this headline">¶</a></h1>
+<p>Components include the Vector class, Position class, and various other compatibility classes to work with OpenGL.</p>
+<div class="section" id="vector-operations">
+<h2>Vector operations<a class="headerlink" href="#vector-operations" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="component.Vector">
+<em class="property">class </em><tt class="descclassname">component.</tt><tt class="descname">Vector</tt><big>(</big><em>num_list</em><big>)</big><a class="headerlink" href="#component.Vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a collection of <tt class="docutils literal"><span class="pre">n</span></tt> numbers that represent a position in <tt class="docutils literal"><span class="pre">n</span></tt>-space.</p>
+<dl class="method">
+<dt id="component.Vector.dot">
+<tt class="descname">dot</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#component.Vector.dot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the dot product of two vectors.</p>
+<p>If the two vectors are not in the same space, raises an <tt class="docutils literal"><span class="pre">InvalidComparisonException</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="component.Vector.cross">
+<tt class="descname">cross</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#component.Vector.cross" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the cross product of two vectors.</p>
+<p>If the two vectors are not in the same space, raises an <tt class="docutils literal"><span class="pre">InvalidComparisonException</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="component.Vector.rot">
+<tt class="descname">rot</tt><big>(</big><em>angle</em><big>)</big><a class="headerlink" href="#component.Vector.rot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotates the current <a class="reference internal" href="#component.Vector" title="component.Vector"><tt class="xref py py-class docutils literal"><span class="pre">Vector</span></tt></a> about the z-axis.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="component.Vector.mag">
+<tt class="descname">mag</tt><big>(</big><big>)</big><a class="headerlink" href="#component.Vector.mag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retuns the magnitude of the <a class="reference internal" href="#component.Vector" title="component.Vector"><tt class="xref py py-class docutils literal"><span class="pre">Vector</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="component.Vector.normalize">
+<tt class="descname">normalize</tt><big>(</big><big>)</big><a class="headerlink" href="#component.Vector.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#component.Vector" title="component.Vector"><tt class="xref py py-class docutils literal"><span class="pre">Vector</span></tt></a> of magnitude 1 with the same direction.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="component.Vector.project">
+<tt class="descname">project</tt><big>(</big><em>axis</em><big>)</big><a class="headerlink" href="#component.Vector.project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a 1D projection of the <a class="reference internal" href="#component.Vector" title="component.Vector"><tt class="xref py py-class docutils literal"><span class="pre">Vector</span></tt></a> onto <tt class="docutils literal"><span class="pre">axis</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="component.Vector.isParallel">
+<tt class="descname">isParallel</tt><big>(</big><em>vector</em><big>)</big><a class="headerlink" href="#component.Vector.isParallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <tt class="docutils literal"><span class="pre">True</span></tt> if the two vectors have the same direction.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="component.Vector.zero">
+<em class="property">static </em><tt class="descname">zero</tt><big>(</big><big>)</big><a class="headerlink" href="#component.Vector.zero" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the zero vector in 3-space.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="component.Pair">
+<em class="property">class </em><tt class="descclassname">component.</tt><tt class="descname">Pair</tt><big>(</big><em>Vector</em><big>)</big><a class="headerlink" href="#component.Pair" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a Vector in 2-space.  Pair extends all the methods from <a class="reference internal" href="#component.Vector" title="component.Vector"><tt class="xref py py-class docutils literal"><span class="pre">Vector</span></tt></a>, but will only operate against other Pairs.  Any other comparison will throw a <tt class="docutils literal"><span class="pre">TypeError</span></tt> exception.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="component.Position">
+<em class="property">class </em><tt class="descclassname">component.</tt><tt class="descname">Position</tt><big>(</big><em>Pair</em><big>)</big><a class="headerlink" href="#component.Position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a Pair that represents an object&#8217;s position in a space.</p>
+<p><a class="reference internal" href="#component.Position" title="component.Position"><tt class="xref py py-class docutils literal"><span class="pre">Position</span></tt></a> will operate against other <a class="reference internal" href="#component.Position" title="component.Position"><tt class="xref py py-class docutils literal"><span class="pre">Position</span></tt></a> objects as well as <a class="reference internal" href="#component.Velocity" title="component.Velocity"><tt class="xref py py-class docutils literal"><span class="pre">Velocity</span></tt></a> objects.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="component.Velocity">
+<em class="property">class </em><tt class="descclassname">component.</tt><tt class="descname">Velocity</tt><big>(</big><em>Pair</em><big>)</big><a class="headerlink" href="#component.Velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a Pair that represents the rate of movement in a space with respect to time.</p>
+<p>To prevent redundancy, <a class="reference internal" href="#component.Velocity" title="component.Velocity"><tt class="xref py py-class docutils literal"><span class="pre">Velocity</span></tt></a> objects also represent acceleration.</p>
+<p><a class="reference internal" href="#component.Velocity" title="component.Velocity"><tt class="xref py py-class docutils literal"><span class="pre">Velocity</span></tt></a> will operate on objects of the same type.  Comparing against other types will throw a <tt class="docutils literal"><span class="pre">TypeError</span></tt> exception.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">component</span></tt> &#8212; List and Vector Components</a><ul>
+<li><a class="reference internal" href="#vector-operations">Vector operations</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="camera.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal"><span class="pre">camera</span></tt> &#8212; Camera operations</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="appendix.html"
+                        title="next chapter">Appendix</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/component.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="appendix.html" title="Appendix"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="camera.html" title="camera — Camera operations"
+             >previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, cmcFaide.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

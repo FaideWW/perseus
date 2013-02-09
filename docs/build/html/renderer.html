@@ -1,0 +1,238 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>render — Renderer and associated functions &mdash; Perseus 0.0.1 prototype 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1 prototype 1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Perseus 0.0.1 prototype 1 documentation" href="index.html" />
+    <link rel="next" title="collision — Collision Operations" href="collision.html" />
+    <link rel="prev" title="Version Information" href="vinfo.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="collision.html" title="collision — Collision Operations"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="vinfo.html" title="Version Information"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-render">
+<span id="render-renderer-and-associated-functions"></span><h1><a class="reference internal" href="#module-render" title="render: Functions involving the drawing of objects to the screen."><tt class="xref py py-mod docutils literal"><span class="pre">render</span></tt></a> &#8212; Renderer and associated functions<a class="headerlink" href="#module-render" title="Permalink to this headline">¶</a></h1>
+<p>The renderer handles drawing objects to the screen during the draw phase of the game loop.</p>
+<div class="section" id="operation-of-the-draw-sequence">
+<span id="draw-sequence"></span><h2>Operation of the Draw Sequence<a class="headerlink" href="#operation-of-the-draw-sequence" title="Permalink to this headline">¶</a></h2>
+<p>When the renderer&#8217;s <tt class="xref py py-meth docutils literal"><span class="pre">draw()</span></tt> is invoked, the batch draws each batch group in order of lowest to highest priority.</p>
+<p>The groups from lowest to highest priority are as follows:</p>
+<ol class="arabic simple">
+<li>skybox</li>
+<li>bg_terrain</li>
+<li>bg_scene</li>
+<li>fg_terrain</li>
+<li>fg_scene</li>
+<li>level</li>
+<li>entities</li>
+<li>effects</li>
+<li>hud</li>
+</ol>
+<p>Groups are distinguished by their prominence in the game scene.  If two areas of a group overlap, the group with higher priority will be drawn over the other.  Groups may or may not share textures, but one group must use one texture for all objects in that group, or no texture at all (in the case of entities).</p>
+<p>For each object in the batch, its position in the world will be interpolated based on the time between game cycle updates and its position/velocity from the last cycle.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In order to accomodate multiple renderers, we have to assume the screen has already been cleared before the renderer&#8217;s <tt class="xref py py-meth docutils literal"><span class="pre">draw()</span></tt> is invoked.  This way one renderer will not overwrite another&#8217;s <tt class="xref py py-meth docutils literal"><span class="pre">draw()</span></tt>.</p>
+</div>
+<hr class="docutils" />
+<dl class="class">
+<dt id="render.Render">
+<em class="property">class </em><tt class="descclassname">render.</tt><tt class="descname">Render</tt><a class="headerlink" href="#render.Render" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a <a class="reference internal" href="#render.Render" title="render.Render"><tt class="xref py py-class docutils literal"><span class="pre">Render</span></tt></a> object with an empty rendering queue and a batch.</p>
+<p>A <a class="reference internal" href="#render.Render" title="render.Render"><tt class="xref py py-class docutils literal"><span class="pre">Render</span></tt></a> object has the following methods.</p>
+<dl class="method">
+<dt id="render.Render.addToBatch">
+<tt class="descname">addToBatch</tt><big>(</big><em>GLObject</em><span class="optional">[</span>, <em>group='effects'</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#render.Render.addToBatch" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">addToBatch</tt><big>(</big><em>Sprite</em><span class="optional">[</span>, <em>group='effects'</em><span class="optional">]</span><big>)</big></dt>
+<dd><p>Adds a GLObject or Sprite to the batch.  The object will be drawn on the next iteration of the loop.  If a group is specified, that object will be added to and drawn with that group.  If no group is specified, the object will be added to the effects group by default.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The GameObject is tied to the object that created it, not the batch.  If the object is destroyed outside of the batch, it is automatically removed from the batch.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="render.Render.setCamera">
+<tt class="descname">setCamera</tt><big>(</big><em>Camera</em><big>)</big><a class="headerlink" href="#render.Render.setCamera" title="Permalink to this definition">¶</a></dt>
+<dd><p>Centers clipspace to the worldspace position of <tt class="docutils literal"><span class="pre">Camera</span></tt>.  See <a class="reference internal" href="appendix.html#draw-spaces"><em>Distinction between different draw-spaces</em></a> for more information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="render.Render.draw">
+<tt class="descname">draw</tt><big>(</big><em>dt</em><big>)</big><a class="headerlink" href="#render.Render.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Invokes the draw sequence.  See <a class="reference internal" href="#draw-sequence"><em>Operation of the Draw Sequence</em></a> for information.</p>
+</dd></dl>
+
+</dd></dl>
+
+<hr class="docutils" />
+<dl class="class">
+<dt id="render.GLObject">
+<em class="property">class </em><tt class="descclassname">render.</tt><tt class="descname">GLObject</tt><big>(</big><em>[draw_mode[, vertex_data[, transform_matrix[, color[, tex_data=None]]]]]]</em><big>)</big><a class="headerlink" href="#render.GLObject" title="Permalink to this definition">¶</a></dt>
+<dt>
+<em class="property">class </em><tt class="descclassname">render.</tt><tt class="descname">GLObject</tt><big>(</big><em>GLObject</em><big>)</big></dt>
+<dd><p>Creates an OpenGL object that contains the necssary data to completely render a GL shape or sprite to the screen.
+The <a class="reference internal" href="#render.GLObject" title="render.GLObject"><tt class="xref py py-class docutils literal"><span class="pre">GLObject</span></tt></a> is mostly a container class, used only for communicating render data in a common format between GameObjects and the renderer.</p>
+<p>A <a class="reference internal" href="#render.GLObject" title="render.GLObject"><tt class="xref py py-class docutils literal"><span class="pre">GLObject</span></tt></a> can be cloned from another <a class="reference internal" href="#render.GLObject" title="render.GLObject"><tt class="xref py py-class docutils literal"><span class="pre">GLObject</span></tt></a> by instantiating it with the source as the only parameter.</p>
+<p>A GLObject has the following properties:</p>
+<dl class="docutils">
+<dt><em>draw_mode</em></dt>
+<dd><p class="first">The GL draw mode for the particular object.  The available draw modes are:</p>
+<ul class="simple">
+<li>GL_POINTS</li>
+<li>GL_LINES</li>
+<li>GL_TRIANGLES</li>
+<li>GL_TRIANGLE_STRIP</li>
+<li>GL_TRIANGE_FAN</li>
+</ul>
+<p class="last">See <a class="reference external" href="http://en.wikibooks.org/wiki/OpenGL_Programming/GLStart/Tut3">opengl modes</a> for more details on these draw modes.</p>
+</dd>
+<dt><em>vertex_array</em></dt>
+<dd>A set of vertex data that consists of a list of vertices, and a second list that determines the order in which these vertices should be drawn to correctly draw the object.</dd>
+<dt><em>transform_matrix</em></dt>
+<dd>A transformation matrix to be performed on the object when being drawn.  See <a class="reference external" href="http://en.wikibooks.org/wiki/OpenGL_Programming/3D/Matrices">understanding transformation matrices</a> for more details on transformation matrices.</dd>
+<dt><em>color</em></dt>
+<dd>A <a class="reference internal" href="#render.Color" title="render.Color"><tt class="xref py py-class docutils literal"><span class="pre">Color</span></tt></a> object representing the RGBA value of the object to be drawn.</dd>
+<dt><em>tex_data</em></dt>
+<dd><p class="first">If the GLObject has a texture associated with it, tex_data will consist of the coordinates of the region of the texture to draw for the object.</p>
+<p class="last">If the GLObject does not have a texture, this will default to None.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Using colorization on a sprite will <em>add</em> the color into the sprite&#8217;s pixels, meaning if the red and blue values of the color are 0.0, only the green component of the sprite will be drawn and the result will be a very nauseous looking sprite.</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="render.Color">
+<em class="property">class </em><tt class="descclassname">render.</tt><tt class="descname">Color</tt><big>(</big><em>num_list</em><big>)</big><a class="headerlink" href="#render.Color" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a list of length <tt class="docutils literal"><span class="pre">4</span></tt> that represents the RGBA value of a color in OpenGL.</p>
+<p>The list should consist of four floating-point values between 0.0 and 1.0.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="textured-batch-groups">
+<h2>Textured Batch Groups<a class="headerlink" href="#textured-batch-groups" title="Permalink to this headline">¶</a></h2>
+<p>The following outlines internal class structure used for enabling and drawing GL textures with batch groups.</p>
+<p>The <tt class="xref py py-class docutils literal"><span class="pre">TextureEnableGroup</span></tt> class handles setting and unsetting the GL_TEXTURE state.  Each <tt class="xref py py-class docutils literal"><span class="pre">TextureBindGroup</span></tt> inherits this state setting, and then loads its group&#8217;s texture into memory.  When the group&#8217;s <tt class="xref py py-meth docutils literal"><span class="pre">unset_state()</span></tt> is called, the inhertied <tt class="xref py py-class docutils literal"><span class="pre">TextureEnableGroup</span></tt> method disables GL_TEXTURE again.</p>
+<p>Because the logic of these classes are handled by pyglet, they will not be documented here.</p>
+<p>The following example outlines the proper usage of these groups for two batched texture groups:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">batch</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">GL_QUADS</span><span class="p">,</span> <span class="n">TextureBindGroup</span><span class="p">(</span><span class="n">texture1</span><span class="p">),</span> <span class="s">&#39;v2f&#39;</span><span class="p">,</span> <span class="s">&#39;t2f&#39;</span><span class="p">)</span>
+<span class="n">batch</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">GL_QUADS</span><span class="p">,</span> <span class="n">TextureBindGroup</span><span class="p">(</span><span class="n">texture2</span><span class="p">),</span> <span class="s">&#39;v2f&#39;</span><span class="p">,</span> <span class="s">&#39;t2f&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">render</span></tt> &#8212; Renderer and associated functions</a><ul>
+<li><a class="reference internal" href="#operation-of-the-draw-sequence">Operation of the Draw Sequence</a></li>
+<li><a class="reference internal" href="#textured-batch-groups">Textured Batch Groups</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="vinfo.html"
+                        title="previous chapter">Version Information</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="collision.html"
+                        title="next chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">collision</span></tt> &#8212; Collision Operations</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/renderer.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="collision.html" title="collision — Collision Operations"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="vinfo.html" title="Version Information"
+             >previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, cmcFaide.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

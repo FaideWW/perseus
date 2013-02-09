@@ -1,0 +1,160 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>animation — Sprite animation &mdash; Perseus 0.0.1 prototype 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1 prototype 1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Perseus 0.0.1 prototype 1 documentation" href="index.html" />
+    <link rel="next" title="gameobject — GameObjects" href="gameobject.html" />
+    <link rel="prev" title="collision — Collision Operations" href="collision.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="gameobject.html" title="gameobject — GameObjects"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="collision.html" title="collision — Collision Operations"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-animation">
+<span id="animation-sprite-animation"></span><h1><a class="reference internal" href="#module-animation" title="animation: Classes and functions that support timed multiple-image Spriting (animation)."><tt class="xref py py-mod docutils literal"><span class="pre">animation</span></tt></a> &#8212; Sprite animation<a class="headerlink" href="#module-animation" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="#module-animation" title="animation: Classes and functions that support timed multiple-image Spriting (animation)."><tt class="xref py py-mod docutils literal"><span class="pre">animation</span></tt></a> module includes the Animation class and handles animated sprites in Perseus.</p>
+<hr class="docutils" />
+<dl class="class">
+<dt id="animation.Animation">
+<em class="property">class </em><tt class="descclassname">animation.</tt><tt class="descname">Animation</tt><big>(</big><em>spritesheet</em>, <em>region_data</em>, <em>fps</em><span class="optional">[</span>, <em>repeats=True</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#animation.Animation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an animation based on a spritesheet.  <tt class="docutils literal"><span class="pre">region_data</span></tt> specifies the sections of the spritesheet represent each frame.  <tt class="docutils literal"><span class="pre">fps</span></tt> indicates the speed at which the animation runs (frames per second).</p>
+<p>In order to cooperate with Pyglet&#8217;s framework, Animation includes a <tt class="docutils literal"><span class="pre">Sprite</span></tt> object from the <tt class="xref py py-mod docutils literal"><span class="pre">pyglet.graphics</span></tt> module.  When the <a class="reference internal" href="#animation.Animation" title="animation.Animation"><tt class="xref py py-class docutils literal"><span class="pre">Animation</span></tt></a> is added to the batch, the Sprite object is linked to it instead.  When the Animation switches frames, it updates the image contained in <tt class="docutils literal"><span class="pre">Sprite</span></tt>, which is then updated in the batch.</p>
+<dl class="method">
+<dt id="animation.Animation._readAnimationData">
+<tt class="descname">_readAnimationData</tt><big>(</big><em>region_data</em><big>)</big><a class="headerlink" href="#animation.Animation._readAnimationData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads in the data for splitting up the sprite sheet into individual frames.  Returns a parsed array of coordinates relating to the corners of each frame, and any necessary offset in objectspace for that frame.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="animation.Animation._buildFrames">
+<tt class="descname">_buildFrames</tt><big>(</big><em>spritesheet</em>, <em>frame_data</em><big>)</big><a class="headerlink" href="#animation.Animation._buildFrames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Slices the spritesheet into regions for each frame, and then loads each region and any necessary transformations (offset) into a frame array.  Returns that frame array.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In this case &#8216;slicing&#8217; does not change the original spritesheet.  It only means that for each frame, only a section of the entire sheet is rendered.  This saves on GPU memory and calls, and preserves the original sheet.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="animation.Animation.update">
+<tt class="descname">update</tt><big>(</big><em>dt</em><big>)</big><a class="headerlink" href="#animation.Animation.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>If enough time has passed since the last frame-switch (according to fps), <a class="reference internal" href="#animation.Animation.nextFrame" title="animation.Animation.nextFrame"><tt class="xref py py-meth docutils literal"><span class="pre">nextFrame()</span></tt></a> is called.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="animation.Animation.nextFrame">
+<tt class="descname">nextFrame</tt><big>(</big><big>)</big><a class="headerlink" href="#animation.Animation.nextFrame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads up the next frame in the sequence.  If the last frame is reached, either the first frame will be loaded or nothing will happen, depending on whether or not <tt class="docutils literal"><span class="pre">repeats</span></tt> is set to <tt class="docutils literal"><span class="pre">True</span></tt> or not.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="animation.Animation.getCurrentFrame">
+<tt class="descname">getCurrentFrame</tt><big>(</big><big>)</big><a class="headerlink" href="#animation.Animation.getCurrentFrame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the index of the current frame (starting at 1).</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="collision.html"
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">collision</span></tt> &#8212; Collision Operations</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gameobject.html"
+                        title="next chapter"><tt class="docutils literal"><span class="pre">gameobject</span></tt> &#8212; GameObjects</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/animation.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="gameobject.html" title="gameobject — GameObjects"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="collision.html" title="collision — Collision Operations"
+             >previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, cmcFaide.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,254 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>player — Player Character &mdash; Perseus 0.0.1 prototype 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1 prototype 1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Perseus 0.0.1 prototype 1 documentation" href="index.html" />
+    <link rel="next" title="playercontroller — PlayerController" href="playercontroller.html" />
+    <link rel="prev" title="gameobject — GameObjects" href="gameobject.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="playercontroller.html" title="playercontroller — PlayerController"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gameobject.html" title="gameobject — GameObjects"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-player">
+<span id="player-player-character"></span><h1><a class="reference internal" href="#module-player" title="player: The player character"><tt class="xref py py-mod docutils literal"><span class="pre">player</span></tt></a> &#8212; Player Character<a class="headerlink" href="#module-player" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="#module-player" title="player: The player character"><tt class="xref py py-mod docutils literal"><span class="pre">player</span></tt></a> module contains the <a class="reference internal" href="#player.Player" title="player.Player"><tt class="xref py py-class docutils literal"><span class="pre">Player</span></tt></a> class.</p>
+<p><a class="reference internal" href="#player.Player" title="player.Player"><tt class="xref py py-class docutils literal"><span class="pre">Player</span></tt></a> extends the <tt class="xref py py-class docutils literal"><span class="pre">GameObject</span></tt> class.  It adds functionality for the moveset available to the player character, as well as a state manager for handling input from the user.</p>
+<p>In future iterations, <a class="reference internal" href="#player.Player" title="player.Player"><tt class="xref py py-class docutils literal"><span class="pre">Player</span></tt></a> will include game state handles for pausing and game over screens.</p>
+<div class="section" id="managing-state">
+<h2>Managing State<a class="headerlink" href="#managing-state" title="Permalink to this headline">¶</a></h2>
+<p>The movement set of the player character is quite complex.  In order to keep everything straight, <a class="reference internal" href="#player.Player" title="player.Player"><tt class="xref py py-class docutils literal"><span class="pre">Player</span></tt></a> tracks the current movement being performed in a state called the movement state.  There are 10 available movement states:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">State name</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><em>IDLE</em></td>
+<td>Active whenever there is no movement.</td>
+</tr>
+<tr class="row-odd"><td><em>RUN</em></td>
+<td>Active whenever x-movement is not zero and y-movement is zero and
+no modifiers are active.</td>
+</tr>
+<tr class="row-even"><td><em>SPRINT</em></td>
+<td>Active when the sprint modifier is active during the <em>RUN</em> state.</td>
+</tr>
+<tr class="row-odd"><td><em>CROUCH</em></td>
+<td>Active when the down modifier is active during either <em>IDLE</em>
+or <em>RUN</em>.</td>
+</tr>
+<tr class="row-even"><td><em>SLIDE</em></td>
+<td>Active when the down modifier is activated AFTER the sprint modifier
+is activated.</td>
+</tr>
+<tr class="row-odd"><td><em>AIRONE</em></td>
+<td>Active when y-movement is not zero.</td>
+</tr>
+<tr class="row-even"><td><em>AIRTWO</em></td>
+<td>Active when the jump key is pressed from the <em>AIRONE</em> state.</td>
+</tr>
+<tr class="row-odd"><td><em>LAND</em></td>
+<td>Active immediately after <em>AIRONE</em> or <em>AIRTWO</em> becomes <em>RUN</em>.</td>
+</tr>
+<tr class="row-even"><td><em>ROLL</em></td>
+<td>Active when the down modifier is active during the <em>LAND</em> state.</td>
+</tr>
+<tr class="row-odd"><td><em>HIDDEN</em></td>
+<td>Active when the stealth modifier is active from a hiding spot.
+(stealth is not covered in this version of the game)</td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<dl class="class">
+<dt id="player.Player">
+<em class="property">class </em><tt class="descclassname">player.</tt><tt class="descname">Player</tt><big>(</big><em>GameObject</em><big>)</big><a class="headerlink" href="#player.Player" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a player character instance.</p>
+<p>Default movement state is <em>IDLE</em></p>
+<dl class="method">
+<dt id="player.Player.getMovementState">
+<tt class="descname">getMovementState</tt><big>(</big><big>)</big><a class="headerlink" href="#player.Player.getMovementState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the current movement state.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="player.Player.checkState">
+<tt class="descname">checkState</tt><big>(</big><big>)</big><a class="headerlink" href="#player.Player.checkState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the player&#8217;s surroundings to see if a state change is necessary.</p>
+<p>The following is a list of automatic state changes to check for:</p>
+<ul class="simple">
+<li>When the player has stopped moving in both the x and y directions, set the state to <em>IDLE</em>.</li>
+<li>If the player has no ground beneath them and is NOT in <em>AIRONE</em> or <em>AIRTWO</em>, set the state to <em>AIRONE</em>.</li>
+<li>If the player is in <em>AIRONE</em> or <em>AIRTWO</em> but has ground beneath them and no y-movement, set the state to <em>LAND</em>.</li>
+<li>If the player is in <em>LAND</em> and enough time has passed that the player cannot roll anymore, set the state appropriately.</li>
+<li>If the player is in <em>ROLL</em> and enough time has passed that the roll has been completed, set the state appropriately.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="player.Player.left">
+<tt class="descname">left</tt><big>(</big><big>)</big><a class="headerlink" href="#player.Player.left" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves in the negative x-direction at a pre-determined speed.</p>
+<p>Sets the movement state to <em>RUN</em>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For the sake of clarity, <em>moving</em> refers to setting the velocity to a particular value.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="player.Player.right">
+<tt class="descname">right</tt><big>(</big><big>)</big><a class="headerlink" href="#player.Player.right" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves in the positive x-direction at a pre-determined speed.</p>
+<p>Sets the movement state to <em>RUN</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="player.Player.sprint">
+<tt class="descname">sprint</tt><big>(</big><big>)</big><a class="headerlink" href="#player.Player.sprint" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the current state is <em>RUN</em>, increases the speed of movement in the direction of motion by a factor.</p>
+<p>Sets the movement state to <em>SPRINT</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="player.Player.down">
+<tt class="descname">down</tt><big>(</big><big>)</big><a class="headerlink" href="#player.Player.down" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the current state is <em>RUN</em> or <em>IDLE</em>, crouches the player and sets the state to <em>CROUCH</em>.</p>
+<p>If the current state is <em>SPRINT</em>, puts the player into a slide animation and sets the state to <em>SLIDE</em>.</p>
+<p>If the current state is <em>LAND</em>, puts the player into a roll and sets the state to <em>ROLL</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="player.Player.up">
+<tt class="descname">up</tt><big>(</big><big>)</big><a class="headerlink" href="#player.Player.up" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the current state is <em>IDLE</em>, <em>RUN</em> or <em>SPRINT</em>, the player will jump and set the state to <em>AIRONE</em>.</p>
+<p>If the current state is <em>ROLL</em>, the player will jump (higher than normal) and set the state to <em>AIRONE</em>.</p>
+<p>If the current state is <em>AIRONE</em>, the player will jump for a second time and set the state to <em>AIRTWO</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="player.Player.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#player.Player.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops horizontal movement.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">player</span></tt> &#8212; Player Character</a><ul>
+<li><a class="reference internal" href="#managing-state">Managing State</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gameobject.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">gameobject</span></tt> &#8212; GameObjects</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="playercontroller.html"
+                        title="next chapter"><tt class="docutils literal docutils literal"><span class="pre">playercontroller</span></tt> &#8212; PlayerController</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/player.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="playercontroller.html" title="playercontroller — PlayerController"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gameobject.html" title="gameobject — GameObjects"
+             >previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, cmcFaide.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

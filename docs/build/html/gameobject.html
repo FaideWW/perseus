@@ -1,0 +1,205 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>gameobject — GameObjects &mdash; Perseus 0.0.1 prototype 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1 prototype 1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Perseus 0.0.1 prototype 1 documentation" href="index.html" />
+    <link rel="next" title="player — Player Character" href="player.html" />
+    <link rel="prev" title="animation — Sprite animation" href="animation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="player.html" title="player — Player Character"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="animation.html" title="animation — Sprite animation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-gameobject">
+<span id="gameobject-gameobjects"></span><h1><a class="reference internal" href="#module-gameobject" title="gameobject: Models every object that has a presence or position in worldspace"><tt class="xref py py-mod docutils literal"><span class="pre">gameobject</span></tt></a> &#8212; GameObjects<a class="headerlink" href="#module-gameobject" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="#module-gameobject" title="gameobject: Models every object that has a presence or position in worldspace"><tt class="xref py py-mod docutils literal"><span class="pre">gameobject</span></tt></a> module contains the unifying GameObject class that every element in the game is based on.  If an object has a position in worldspace, or is drawn to the screen based on its position in worldspace, it extends this class.  <a class="reference internal" href="#gameobject.GameObject" title="gameobject.GameObject"><tt class="xref py py-class docutils literal"><span class="pre">GameObject</span></tt></a> provides the base functionality for an object to exist in Perseus.</p>
+<p>In future iterations, <a class="reference internal" href="#gameobject.GameObject" title="gameobject.GameObject"><tt class="xref py py-class docutils literal"><span class="pre">GameObject</span></tt></a> will include functionality for health.</p>
+<hr class="docutils" />
+<dl class="class">
+<dt id="gameobject.GameObject">
+<em class="property">class </em><tt class="descclassname">gameobject.</tt><tt class="descname">GameObject</tt><big>(</big><em>id</em>, <em>position</em><span class="optional">[</span>, <em>sprite=None</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#gameobject.GameObject" title="Permalink to this definition">¶</a></dt>
+<dt>
+<em class="property">class </em><tt class="descclassname">gameobject.</tt><tt class="descname">GameObject</tt><big>(</big><em>id</em>, <em>position</em>, <em>boundingpoly</em>, <em>collider</em><span class="optional">[</span>, <em>sprite=None</em><span class="optional">]</span><big>)</big></dt>
+<dt>
+<em class="property">class </em><tt class="descclassname">gameobject.</tt><tt class="descname">GameObject</tt><big>(</big><em>id</em>, <em>position</em>, <em>boundingpoly</em>, <em>type</em><span class="optional">[</span>, <em>sprite=None</em><span class="optional">]</span><big>)</big></dt>
+<dd><p>Creates an empty GameObject shell that has a presence in worldspace.</p>
+<p>GameObjects are identified to most systems by their <tt class="docutils literal"><span class="pre">id</span></tt></p>
+<p>GameObjects that participate in collision detection must declare a type (by default this behavior is disabled), or include a custom collider.</p>
+<p>If a sprite is declared,</p>
+<dl class="method">
+<dt id="gameobject.GameObject.addGLObject">
+<tt class="descname">addGLObject</tt><big>(</big><em>GLObject</em><big>)</big><a class="headerlink" href="#gameobject.GameObject.addGLObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ties a <tt class="xref py py-class docutils literal"><span class="pre">GLObject</span></tt> to this GameObject, which will be drawn at the position of the GameObject.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gameobject.GameObject.getRenderables">
+<tt class="descname">getRenderables</tt><big>(</big><big>)</big><a class="headerlink" href="#gameobject.GameObject.getRenderables" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the GameObject has either a Sprite or a <tt class="xref py py-class docutils literal"><span class="pre">GLObject</span></tt> or both, this returns a list of all the renderable objects tied to it.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gameobject.GameObject.accelerate">
+<tt class="descname">accelerate</tt><big>(</big><em>acc</em><big>)</big><a class="headerlink" href="#gameobject.GameObject.accelerate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds acceleration to the acceleration vector.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gameobject.GameObject.stopAcceleration">
+<tt class="descname">stopAcceleration</tt><big>(</big><big>)</big><a class="headerlink" href="#gameobject.GameObject.stopAcceleration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the acceleration vector to zero.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gameobject.GameObject.setVelocity">
+<tt class="descname">setVelocity</tt><big>(</big><em>vel</em><big>)</big><a class="headerlink" href="#gameobject.GameObject.setVelocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Erases the existing velocity vector and replaces it with <tt class="docutils literal"><span class="pre">vel</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gameobject.GameObject.getWorldSpacePosition">
+<tt class="descname">getWorldSpacePosition</tt><big>(</big><big>)</big><a class="headerlink" href="#gameobject.GameObject.getWorldSpacePosition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the worldspace position of the GameObject.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gameobject.GameObject.getVelocity">
+<tt class="descname">getVelocity</tt><big>(</big><big>)</big><a class="headerlink" href="#gameobject.GameObject.getVelocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the velocity of the GameObject.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gameobject.GameObject.getBoundingPoly">
+<tt class="descname">getBoundingPoly</tt><big>(</big><big>)</big><a class="headerlink" href="#gameobject.GameObject.getBoundingPoly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the bounding polygon for this GameObject.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gameobject.GameObject.addVelocity">
+<tt class="descname">addVelocity</tt><big>(</big><em>rel_vel</em><big>)</big><a class="headerlink" href="#gameobject.GameObject.addVelocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds <tt class="docutils literal"><span class="pre">rel_vel</span></tt> to the velocity vector.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is distinct from <a class="reference internal" href="#gameobject.GameObject.accelerate" title="gameobject.GameObject.accelerate"><tt class="xref py py-meth docutils literal"><span class="pre">accelerate()</span></tt></a> in that <a class="reference internal" href="#gameobject.GameObject.accelerate" title="gameobject.GameObject.accelerate"><tt class="xref py py-meth docutils literal"><span class="pre">accelerate()</span></tt></a> is bound by game time.  <a class="reference internal" href="#gameobject.GameObject.addVelocity" title="gameobject.GameObject.addVelocity"><tt class="xref py py-meth docutils literal"><span class="pre">addVelocity()</span></tt></a> will instantaneously change the velocity of the GameObject. <a class="reference internal" href="#gameobject.GameObject.accelerate" title="gameobject.GameObject.accelerate"><tt class="xref py py-meth docutils literal"><span class="pre">accelerate()</span></tt></a> will change the velocity over a period of 1 second.  Not sure if both of these will be needed, but it&#8217;s nice to have both.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="gameobject.GameObject.setFlags">
+<tt class="descname">setFlags</tt><big>(</big><em>flag_data</em><big>)</big><a class="headerlink" href="#gameobject.GameObject.setFlags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets instance-specific flags for a particular GameObject.  This will be expanded upon in later iterations.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gameobject.GameObject.update">
+<tt class="descname">update</tt><big>(</big><em>dt</em><big>)</big><a class="headerlink" href="#gameobject.GameObject.update" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">acceleration</span> <span class="pre">*</span> <span class="pre">dt</span></tt> is added to <tt class="docutils literal"><span class="pre">velocity</span></tt>.</p>
+<p><tt class="docutils literal"><span class="pre">velocity</span> <span class="pre">*</span> <span class="pre">dt</span></tt> is added to <tt class="docutils literal"><span class="pre">position</span></tt>.</p>
+<p>General purpose update method.  Subclasses will extend this if they need to.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="animation.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">animation</span></tt> &#8212; Sprite animation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="player.html"
+                        title="next chapter"><tt class="docutils literal"><span class="pre">player</span></tt> &#8212; Player Character</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/gameobject.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="player.html" title="player — Player Character"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="animation.html" title="animation — Sprite animation"
+             >previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, cmcFaide.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

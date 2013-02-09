@@ -1,0 +1,185 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Appendix &mdash; Perseus 0.0.1 prototype 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1 prototype 1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Perseus 0.0.1 prototype 1 documentation" href="index.html" />
+    <link rel="prev" title="component — List and Vector Components" href="component.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="component.html" title="component — List and Vector Components"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="appendix">
+<h1>Appendix<a class="headerlink" href="#appendix" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="distinction-between-different-draw-spaces">
+<span id="draw-spaces"></span><h2>Distinction between different draw-spaces<a class="headerlink" href="#distinction-between-different-draw-spaces" title="Permalink to this headline">¶</a></h2>
+<p>In this documentation I&#8217;m using terminology native to graphics programmers to describe game-logic elements.  Here I will explain what I mean by the different -spaces that I talk about.</p>
+<p>-space describes a coordinate system that is relative to some reference point.  Typically in 3D games, this involves linear transformations as well as perspective projection, but in 2D games we only deal with the transformations.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Often I will contract -spaces into one word.  This is a bad habit of mine, there is no difference between world space and worldspace and you will see me use these interchangeably throughout the docs.</p>
+</div>
+<p><em>Object Space</em></p>
+<blockquote>
+<div><p>Object space or model space is space centered at an object&#8217;s position.  Any points in object space are relative to that object&#8217;s position.</p>
+<p>Object space is used by bounding polygons to stay attached to their object if it is moving through the game.</p>
+</div></blockquote>
+<p><em>World Space</em></p>
+<blockquote>
+<div><p>Worldspace is the space as seen from the perspective of the game.  This is what most people think of when position is discussed.  Most of the game logic occurs in worldspace - collision detection, physics, and level geometry are all relative to worldspace.</p>
+<p>Worldspace is centered at the bottom left corner of of the world, unlike object space which is centered at the center of an object.</p>
+</div></blockquote>
+<p><em>Camera Space</em></p>
+<blockquote>
+<div><p>Camera space or clipspace is what the user sees in the game window.  Before an object is drawn to the screen, it is transformed to the position and orientation of the Camera object, giving the camera space coordinates of that object.  This is how the world is able to move &#8216;around&#8217; the player character; because the Camera is tied to the Player&#8217;s worldspace position, and then everything is rendered to camera space.</p>
+<p>Camera space is centered at the worldspace position of the Camera object.</p>
+<p>Some interface elements, such as the pause menu and health bar are placed directly into camera space, because they do not move with the level.</p>
+</div></blockquote>
+</div>
+<div class="section" id="translating-between-draw-spaces">
+<span id="draw-space-translation"></span><h2>Translating between draw-spaces<a class="headerlink" href="#translating-between-draw-spaces" title="Permalink to this headline">¶</a></h2>
+<p><em>Object space to world space</em></p>
+<p>Simply add the object&#8217;s object space coordinates to the worldspace coordinates of the object that owns the object space.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">object_in_objectspace</span><span class="o">.</span><span class="n">worldspace_position</span> <span class="o">=</span> <span class="n">object_in_objectspace</span><span class="o">.</span><span class="n">objectspace_position</span> <span class="o">+</span> <span class="n">object_in_worldspace</span><span class="o">.</span><span class="n">worldspace_position</span>
+</pre></div>
+</div>
+<p><em>World space to camera space</em></p>
+<p>This one is less intuitive.  Because camera space is centered in the middle of the window, and because drawing in OpenGL is centered at the bottom left like worldspace, we have to account for the window size in our translation.  So the calculation becomes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#assume all objects are in worldspace</span>
+<span class="nb">object</span><span class="o">.</span><span class="n">cameraspace_position</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">worldspace_position</span> <span class="o">-</span> <span class="n">camera</span><span class="o">.</span><span class="n">worldspace_position</span> <span class="o">+</span> <span class="n">Position</span><span class="p">(</span><span class="n">WINDOW</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">WINDOW</span><span class="o">.</span><span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="broad-phase-collision-detection">
+<span id="broad-phase"></span><h2>Broad-phase Collision Detection<a class="headerlink" href="#broad-phase-collision-detection" title="Permalink to this headline">¶</a></h2>
+<p>The methodology for broad-phase collision detection is as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="nb">object</span> <span class="ow">in</span> <span class="n">object_list</span><span class="p">:</span>
+   <span class="k">for</span> <span class="n">other_object</span> <span class="ow">in</span> <span class="n">object_list</span> <span class="ow">not</span> <span class="nb">object</span> <span class="ow">and</span> <span class="n">other_object</span><span class="o">.</span><span class="n">index</span> <span class="o">&gt;</span> <span class="nb">object</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">distance</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">other_object</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">object</span><span class="o">.</span><span class="n">speed</span> <span class="o">+</span> <span class="n">other_object</span><span class="o">.</span><span class="n">speed</span><span class="p">:</span>
+         <span class="c">#they&#39;re close enough to possibly collide</span>
+            <span class="n">possible_matches</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">collision</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">other_object</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="narrow-phase-colision-detection-using-the-separating-axis-theorem">
+<span id="narrow-phase"></span><h2>Narrow-phase Colision Detection using the Separating Axis Theorem<a class="headerlink" href="#narrow-phase-colision-detection-using-the-separating-axis-theorem" title="Permalink to this headline">¶</a></h2>
+<p>The methodology for narrow-phase collision detection is as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">possible_matches</span><span class="p">:</span>
+   <span class="n">collider</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">faster_object</span>
+   <span class="n">collidee</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">slower_object</span>
+
+   <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="n">collidee</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">axis</span><span class="o">.</span><span class="n">projection</span><span class="p">(</span><span class="n">collider</span><span class="p">)</span> <span class="ow">and</span> <span class="n">axis</span><span class="o">.</span><span class="n">projection</span><span class="p">(</span><span class="n">collidee</span><span class="p">)</span> <span class="n">do</span> <span class="ow">not</span> <span class="n">overlap</span><span class="p">:</span>
+         <span class="c">#there is no collision here, since there is a separating axis</span>
+         <span class="k">return</span> <span class="n">false</span>
+
+   <span class="c">#if this section of the code is reached, there is a collision because all axes overlap</span>
+   <span class="k">return</span> <span class="n">true</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Appendix</a><ul>
+<li><a class="reference internal" href="#distinction-between-different-draw-spaces">Distinction between different draw-spaces</a></li>
+<li><a class="reference internal" href="#translating-between-draw-spaces">Translating between draw-spaces</a></li>
+<li><a class="reference internal" href="#broad-phase-collision-detection">Broad-phase Collision Detection</a></li>
+<li><a class="reference internal" href="#narrow-phase-colision-detection-using-the-separating-axis-theorem">Narrow-phase Colision Detection using the Separating Axis Theorem</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="component.html"
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">component</span></tt> &#8212; List and Vector Components</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/appendix.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="component.html" title="component — List and Vector Components"
+             >previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, cmcFaide.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

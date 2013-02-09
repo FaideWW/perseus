@@ -1,0 +1,158 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Introduction to Perseus &mdash; Perseus 0.0.1 prototype 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1 prototype 1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Perseus 0.0.1 prototype 1 documentation" href="index.html" />
+    <link rel="next" title="Version Information" href="vinfo.html" />
+    <link rel="prev" title="Project Perseus" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="vinfo.html" title="Version Information"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Project Perseus"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="introduction-to-perseus">
+<h1>Introduction to Perseus<a class="headerlink" href="#introduction-to-perseus" title="Permalink to this headline">¶</a></h1>
+<p>Project Perseus is a 2D platforming action-adventure game developed by Alien Swordfish Game Laboratories.</p>
+<p>The game is written in Python using the Pyglet OpenGL framework.  Planned platforms for the moment are Windows, Mac and Linux.  Future platform support is tentative.</p>
+<p>The current version of the game is 0.0.1 prototype 1.</p>
+<div class="section" id="technical-elements">
+<h2>Technical Elements<a class="headerlink" href="#technical-elements" title="Permalink to this headline">¶</a></h2>
+<p>Perseus is designed around the Pyglet framework which includes a simple window manager, input listeners and bindings for OpenGL.  As such, most of the game elements are written from scratch.  The game loop features two main asynchronous cycles: the game cycle where game logic is handled, and the draw cycle where rendering is managed.</p>
+<p>The game cycle is configured to run at a fixed rate of 60 cycles per second for two reasons.  First, t was necessary for the physics and collision detection to synchronize and mesh correctly.  And second, the game logic is fairly calculation heavy and fixing it guarantees consistent behavior for complicated scenes and future updates.</p>
+<p>The draw cycle is not bound by a fixed rate.  It is configured to run as fast as possible.  The main reason for this is because the game is developed for PC, it must be able to run on a variety of systems.  Separating the draw loop from game logic allows the game to behave consistently on all configurations, while letting the game take advantage of high-end computers to provide a high framerate and still giving players with low-end computers the same experience at a lower framerate.</p>
+</div>
+<div class="section" id="synchronising-the-draw-and-game-cycles">
+<h2>Synchronising the draw and game cycles<a class="headerlink" href="#synchronising-the-draw-and-game-cycles" title="Permalink to this headline">¶</a></h2>
+<p>Because the two cycles are decoupled, the draw cycle is only updated on every game loop update at a potentially very high framerate.  To solve this, we interpolate between cycle updates based on an object&#8217;s current position and velocity.  This is an accurate enough estimate to insert frames between updates.</p>
+</div>
+<div class="section" id="phases-of-the-game-cycle">
+<h2>Phases of the game cycle<a class="headerlink" href="#phases-of-the-game-cycle" title="Permalink to this headline">¶</a></h2>
+<p>During the running game state, the game cycle runs through several phases.</p>
+<ol class="arabic">
+<li><p class="first"><em>Player Input</em></p>
+<p>Checks for player input and applies the corresponding events to the game (moving the player, pausing the game, performing an action)</p>
+</li>
+<li><p class="first"><em>Collision detection</em></p>
+<p>See <a class="reference internal" href="collision.html#collision-sequence"><em>The Collision Sequence</em></a> for information.</p>
+</li>
+<li><p class="first"><em>Physics</em></p>
+<p>All GameObject movement occurs here.  Any necessary physics updates, including gravity and other in-game forces, are applied here.</p>
+</li>
+<li><p class="first"><em>Collision resolution</em></p>
+<p>See <a class="reference internal" href="collision.html#collision-sequence"><em>The Collision Sequence</em></a> for information.</p>
+</li>
+</ol>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction to Perseus</a><ul>
+<li><a class="reference internal" href="#technical-elements">Technical Elements</a></li>
+<li><a class="reference internal" href="#synchronising-the-draw-and-game-cycles">Synchronising the draw and game cycles</a></li>
+<li><a class="reference internal" href="#phases-of-the-game-cycle">Phases of the game cycle</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Project Perseus</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="vinfo.html"
+                        title="next chapter">Version Information</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/intro.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="vinfo.html" title="Version Information"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Project Perseus"
+             >previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, cmcFaide.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

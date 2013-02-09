@@ -1,0 +1,674 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>collision — Collision Operations &mdash; Perseus 0.0.1 prototype 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1 prototype 1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Perseus 0.0.1 prototype 1 documentation" href="index.html" />
+    <link rel="next" title="animation — Sprite animation" href="animation.html" />
+    <link rel="prev" title="render — Renderer and associated functions" href="renderer.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="animation.html" title="animation — Sprite animation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="renderer.html" title="render — Renderer and associated functions"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-collision">
+<span id="collision-collision-operations"></span><h1><a class="reference internal" href="#module-collision" title="collision: Mechanics and behaviors of GameObjects during and after collisions"><tt class="xref py py-mod docutils literal"><span class="pre">collision</span></tt></a> &#8212; Collision Operations<a class="headerlink" href="#module-collision" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="#module-collision" title="collision: Mechanics and behaviors of GameObjects during and after collisions"><tt class="xref py py-mod docutils literal"><span class="pre">collision</span></tt></a> module handles collision detection and behavior for GameObjects.</p>
+<div class="section" id="the-collision-sequence">
+<span id="collision-sequence"></span><h2>The Collision Sequence<a class="headerlink" href="#the-collision-sequence" title="Permalink to this headline">¶</a></h2>
+<p>The collision sequence contains two phases that occur on either side of the physics update.</p>
+<p>The first phase is <strong>collision detection</strong>.  During this phase, GameObjects are polled for position and velocity, and those properties are compared to determine if any paths collide with each other.  If they do collide, the collision is added to the collision queue to be processed after the physics update.</p>
+<p>The second phase is <strong>collision resolution</strong>.  During this phase, each collision in the collision queue goes through the following steps:</p>
+<ol class="arabic simple">
+<li>Determine the direction of collision.</li>
+<li>Set each object back to a position where they are no longer considered colliding. (Maintain velocity)</li>
+<li>Each object involved has the collision flag triggered in its internal state (used for falling platforms, damage, etc).</li>
+<li>Fetch the collision behavior for each object.</li>
+<li>Perform the collision behavior transformations on the objects. (Knockback, bounce, static)</li>
+<li>Remove the collision from the queue and repeat.</li>
+</ol>
+<hr class="docutils" />
+<dl class="class">
+<dt id="collision.Collider">
+<em class="property">class </em><tt class="descclassname">collision.</tt><tt class="descname">Collider</tt><a class="headerlink" href="#collision.Collider" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a collider class which performs collision detection and resolution during the collision sequence.</p>
+<dl class="method">
+<dt id="collision.Collider.detectCollisions">
+<tt class="descname">detectCollisions</tt><big>(</big><em>objects</em><big>)</big><a class="headerlink" href="#collision.Collider.detectCollisions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a list of game objects and performs broad-phase collision (via quadtrees) to find possible matches.  The list of possible matches then each undergoes narrow-phase collision (via the separating axis theorem) to find confirmed collisions.  Any confirmed collisions are then added to the collision queue.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The collision queue is a unique set.  All collisions should only occur once per game tick.  The broad-phase sorting technique used solves any possible duplication errors by only comparing objects of a higher index in the list (see <a class="reference internal" href="appendix.html#broad-phase"><em>Broad-phase Collision Detection</em></a>)</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="collision.Collider._broadPhase">
+<tt class="descname">_broadPhase</tt><big>(</big><em>objects</em><big>)</big><a class="headerlink" href="#collision.Collider._broadPhase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs broad-phase cllision detection on a list of objects.  Returns a list of possible collisions for narrow-phase detection.</p>
+<p>See <a class="reference internal" href="appendix.html#broad-phase"><em>Broad-phase Collision Detection</em></a> for a detailed description of how broad-phase collision detection is performed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="collision.Collider._narrowPhase">
+<tt class="descname">_narrowPhase</tt><big>(</big><em>possible_collisions</em><big>)</big><a class="headerlink" href="#collision.Collider._narrowPhase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs narrow-phase collision detection on a list of possible collisions.</p>
+<p>See <a class="reference internal" href="appendix.html#narrow-phase"><em>Narrow-phase Colision Detection using the Separating Axis Theorem</em></a> for a detailed description of how narrow-phase collision detection is performed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="collision.Collider.resolveCollisions">
+<tt class="descname">resolveCollisions</tt><big>(</big><em>collisions</em><big>)</big><a class="headerlink" href="#collision.Collider.resolveCollisions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a list of colliding objects, and based on their collision behavior, performs a transformation on their game state.</p>
+</dd></dl>
+
+</dd></dl>
+
+<hr class="docutils" />
+<dl class="class">
+<dt id="collision.ObjectCollision">
+<em class="property">class </em><tt class="descclassname">collision.</tt><tt class="descname">ObjectCollision</tt><big>(</big><em>GameObject</em>, <em>GameObject</em><big>)</big><a class="headerlink" href="#collision.ObjectCollision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Holds two objects that are currently colliding, to be resolved.</p>
+<dl class="method">
+<dt id="collision.ObjectCollision.compare">
+<tt class="descname">compare</tt><big>(</big><em>ObjectCollision</em><big>)</big><a class="headerlink" href="#collision.ObjectCollision.compare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if two <a class="reference internal" href="#collision.ObjectCollision" title="collision.ObjectCollision"><tt class="xref py py-class docutils literal"><span class="pre">ObjectCollision</span></tt></a> objects are the same.  If an <a class="reference internal" href="#collision.ObjectCollision" title="collision.ObjectCollision"><tt class="xref py py-class docutils literal"><span class="pre">ObjectCollision</span></tt></a> has the same <tt class="xref py py-class docutils literal"><span class="pre">GameObject</span></tt> items regardless of their order, it is considered equivalent.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="collision.BoundingPoly">
+<em class="property">class </em><tt class="descclassname">collision.</tt><tt class="descname">BoundingPoly</tt><big>(</big><em>vertices</em><big>)</big><a class="headerlink" href="#collision.BoundingPoly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a bounding polygon for use in collision detection.  The bounding box constructor takes a list of vertices (Positions in object space), and produces a polygon that represents that object&#8217;s physical borders in the game.</p>
+<dl class="method">
+<dt id="collision.BoundingPoly.getVertices">
+<tt class="descname">getVertices</tt><big>(</big><big>)</big><a class="headerlink" href="#collision.BoundingPoly.getVertices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the vertex list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="collision.BoundingPoly.getAxes">
+<tt class="descname">getAxes</tt><big>(</big><big>)</big><a class="headerlink" href="#collision.BoundingPoly.getAxes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of axes normal to the faces of the polygon for use in the collision detection algorithm.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="collision.BoundingPoly.project">
+<tt class="descname">project</tt><big>(</big><em>axis</em><big>)</big><a class="headerlink" href="#collision.BoundingPoly.project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Projects the polygon onto <tt class="docutils literal"><span class="pre">axis</span></tt> using vector projection.  Returns a pair of numbers that represent the endpoints of the projection.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="checking-for-collisions-the-separating-axis-theorem">
+<h2>Checking for Collisions - the Separating Axis Theorem<a class="headerlink" href="#checking-for-collisions-the-separating-axis-theorem" title="Permalink to this headline">¶</a></h2>
+<p>When two objects are selected for narrow-phase detection, their bounding boxes undergo an algorithm to check if they are intersecting.  The algorithm uses the Separating Axis Theorem to determine if there is any overlap between the two boxes.  If there is, they are considered colliding.</p>
+<p>The separating axis theorem states that if there exists an axis for which the projections of two objects <em>do not overlap</em>, then they do not intersect.</p>
+<p>The theorem operates on the assumption that non-collisions are much more likely than collisions, and therefore it is much faster to determine that there is no collision than it is to determine that there is one, especially for polygons with complex shapes.</p>
+<p>There are a few drawbacks of this algorithm.  First, collision between simple shapes (axis aligned bounding boxes or bounding circles for example) can be resolved in a simpler and faster manner.  This algorithm works best on geometry and polygons with many sides.  Second, the SAT does not work on polygons with concave facets.  Crescent shapes will give false positives on collisions if an object is inside the crescent.  This is a limitation of the method, and so in future iterations we will have to either update the method or make it a design limitation to not include concave polygons.</p>
+</div>
+<div class="section" id="resolving-collisions">
+<h2>Resolving Collisions<a class="headerlink" href="#resolving-collisions" title="Permalink to this headline">¶</a></h2>
+<p>Collisions are resolved in two parts.  The first is a game state update to both objects as a function of the other object&#8217;s type.  A gameobject may have a specific reaction to a particular object type (for example, entities take damage from projectiles).  This is best handled by a collision component specific to the object.  If the first part returns a collision type, the collision continues.  The second is mechanical transformation; this consists entirely of all velocity changes (speed and direction).  This can be handled by the general collider.</p>
+<p>The following is a list of the object types that currently exist in Perseus:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="83%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">GameObject type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Entity</td>
+<td>Any living being in the game world.</td>
+</tr>
+<tr class="row-odd"><td>Hostile</td>
+<td>Enemy entity.</td>
+</tr>
+<tr class="row-even"><td>Player</td>
+<td>Extends from the Entity class but with special constructs for handling
+player input and game state links.</td>
+</tr>
+<tr class="row-odd"><td>Static</td>
+<td>An immutable piece of the world.  A common example is level geometry.</td>
+</tr>
+<tr class="row-even"><td>Trigger</td>
+<td>An object that when activated has some effect on the gameworld.</td>
+</tr>
+<tr class="row-odd"><td>Attack</td>
+<td>Temporary collision block that appears when an attack is being
+performed that outlines the hit detection of the move.</td>
+</tr>
+<tr class="row-even"><td>Projectile</td>
+<td>Similar to an attack but moves through the world independent of its
+origin.  Is almost always destroyed after collision.</td>
+</tr>
+</tbody>
+</table>
+<p>The following is the corresponding list of physical transformation types in Perseus:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="86%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Collision type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Bounce</td>
+<td>Reflects the object along the axis of collision.</td>
+</tr>
+<tr class="row-odd"><td>Stop</td>
+<td>Stops movement along collision normal axis.</td>
+</tr>
+<tr class="row-even"><td>StopAll</td>
+<td>Stops all movement in all directions.</td>
+</tr>
+<tr class="row-odd"><td>Knockback</td>
+<td>Pushes the colliding entity in the direction opposite of the collision and slightly upwards.</td>
+</tr>
+<tr class="row-even"><td>Slow</td>
+<td>Slows the offending object to a fraction of its current speed, but maintains direction.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="collidable-objects">
+<h2>Collidable Objects<a class="headerlink" href="#collidable-objects" title="Permalink to this headline">¶</a></h2>
+<p>All gameobjects that interact with collision detection have a Collidable component that inherits from the <a class="reference internal" href="#collision.Collidable" title="collision.Collidable"><tt class="xref py py-class docutils literal"><span class="pre">Collidable</span></tt></a> interface.</p>
+<hr class="docutils" />
+<dl class="class">
+<dt id="collision.Collidable">
+<em class="property">class </em><tt class="descclassname">collision.</tt><tt class="descname">Collidable</tt><a class="headerlink" href="#collision.Collidable" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is an interface class for extending the behavior of a particular gameobject type during a collision beyond a physical transformation.</p>
+<dl class="method">
+<dt id="collision.Collidable.getType">
+<tt class="descname">getType</tt><big>(</big><big>)</big><a class="headerlink" href="#collision.Collidable.getType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the GameObject type from one of the choices in the table above.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="collision.Collidable.collideWith">
+<tt class="descname">collideWith</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#collision.Collidable.collideWith" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates game state based on the type of object with which the collision occurred.</p>
+<p><a class="reference internal" href="#collision.Collidable.collideWith" title="collision.Collidable.collideWith"><tt class="xref py py-meth docutils literal"><span class="pre">collideWith()</span></tt></a> will return a collision type if it exists, or <tt class="docutils literal"><span class="pre">None</span></tt> if the collision should stop.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>Collidable has the following subclasses:</p>
+<dl class="class">
+<dt id="collision.EntityCollidable">
+<em class="property">class </em><tt class="descclassname">collision.</tt><tt class="descname">EntityCollidable</tt><a class="headerlink" href="#collision.EntityCollidable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles collisions involving Entities.</p>
+<dl class="method">
+<dt id="collision.EntityCollidable.getType">
+<tt class="descname">getType</tt><big>(</big><big>)</big><a class="headerlink" href="#collision.EntityCollidable.getType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <tt class="docutils literal"><span class="pre">Entity</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="collision.EntityCollidable.collideWith">
+<tt class="descname">collideWith</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#collision.EntityCollidable.collideWith" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles collisions with each of the other GameObject types.</p>
+<p>The following is a list of collision behaviors the Entity will inherit when it collides with a particular GameObject:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="77%" />
+<col width="11%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">GameObject type</th>
+<th class="head">Description</th>
+<th class="head">Returns</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Entity</span></tt>,
+<tt class="docutils literal"><span class="pre">Trigger</span></tt></td>
+<td>None.  Entities may pass through without consequence.</td>
+<td><tt class="docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">Hostile</span></tt>,
+<tt class="docutils literal"><span class="pre">Attack</span></tt>,
+<tt class="docutils literal"><span class="pre">Projectile</span></tt></td>
+<td>Entities will take damage and trigger either a fight or flight response.</td>
+<td><tt class="docutils literal"><span class="pre">Knockback</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Static</span></tt></td>
+<td>Entities have no special interaction with static geometry.</td>
+<td><tt class="docutils literal"><span class="pre">Stop</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="collision.HostileCollidable">
+<em class="property">class </em><tt class="descclassname">collision.</tt><tt class="descname">HostileCollidable</tt><a class="headerlink" href="#collision.HostileCollidable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles collisions involving Hostiles.</p>
+<dl class="method">
+<dt id="collision.HostileCollidable.getType">
+<tt class="descname">getType</tt><big>(</big><big>)</big><a class="headerlink" href="#collision.HostileCollidable.getType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <tt class="docutils literal"><span class="pre">Hostile</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="collision.HostileCollidable.collideWith">
+<tt class="descname">collideWith</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#collision.HostileCollidable.collideWith" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles collisions with each of the other GameObject types.</p>
+<p>The following is a list of collision behaviors the Hostile will inherit when it collides with a particular GameObject:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="77%" />
+<col width="11%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">GameObject type</th>
+<th class="head">Description</th>
+<th class="head">Returns</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Entity</span></tt>,
+<tt class="docutils literal"><span class="pre">Hostile</span></tt>,
+<tt class="docutils literal"><span class="pre">Player</span></tt>,
+<tt class="docutils literal"><span class="pre">Trigger</span></tt></td>
+<td>None.  Hostiles may pass through without consequence.</td>
+<td><tt class="docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">Attack</span></tt>,
+<tt class="docutils literal"><span class="pre">Projectile</span></tt></td>
+<td>Hostiles will take damage.</td>
+<td><tt class="docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Static</span></tt></td>
+<td>Entities have no special interaction with static geometry.</td>
+<td><tt class="docutils literal"><span class="pre">Stop</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="collision.PlayerCollidable">
+<em class="property">class </em><tt class="descclassname">collision.</tt><tt class="descname">PlayerCollidable</tt><a class="headerlink" href="#collision.PlayerCollidable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles collisions involving the player character.</p>
+<dl class="method">
+<dt id="collision.PlayerCollidable.getType">
+<tt class="descname">getType</tt><big>(</big><big>)</big><a class="headerlink" href="#collision.PlayerCollidable.getType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <tt class="docutils literal"><span class="pre">Player</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="collision.PlayerCollidable.collideWith">
+<tt class="descname">collideWith</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#collision.PlayerCollidable.collideWith" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles collisions with each of the other GameObject types.</p>
+<p>The following is a list of collision behaviors the Player will inherit when it collides with a particular GameObject:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="77%" />
+<col width="11%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">GameObject type</th>
+<th class="head">Description</th>
+<th class="head">Returns</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Entity</span></tt></td>
+<td>None.  Players may pass through without consequence.</td>
+<td><tt class="docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">Hostile</span></tt></td>
+<td>Players take damage from colliding with hostiles.</td>
+<td><tt class="docutils literal"><span class="pre">Knockback</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Trigger</span></tt></td>
+<td>None.  Players may pass through triggers without consequence.</td>
+<td><tt class="docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">Attack</span></tt>,
+<tt class="docutils literal"><span class="pre">Projectile</span></tt></td>
+<td>Players take damage from attacks and projectiles.</td>
+<td><tt class="docutils literal"><span class="pre">Knockback</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Static</span></tt></td>
+<td>Players have no special interaction with static geometry.</td>
+<td><tt class="docutils literal"><span class="pre">Stop</span></tt></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">There can only be one Player in the gameworld at a specific time.  This is due to the way Player state is tied to game state (when a Player&#8217;s health reaches 0, the game state changes).</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="collision.TriggerCollidable">
+<em class="property">class </em><tt class="descclassname">collision.</tt><tt class="descname">TriggerCollidable</tt><a class="headerlink" href="#collision.TriggerCollidable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles collisions involving game triggers.  These include levers, pressure plates, invisible &#8216;cutscene&#8217; triggers, etc.
+Triggers will almost always be the collidee in the case of a collision.</p>
+<dl class="method">
+<dt id="collision.TriggerCollidable.getType">
+<tt class="descname">getType</tt><big>(</big><big>)</big><a class="headerlink" href="#collision.TriggerCollidable.getType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <tt class="docutils literal"><span class="pre">Trigger</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="collision.TriggerCollidable.collideWith">
+<tt class="descname">collideWith</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#collision.TriggerCollidable.collideWith" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles collisions with each of the other GameObject types.</p>
+<p>The following is a list of collision behaviors a trigger inherit when it collides with a particular GameObject:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="77%" />
+<col width="11%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">GameObject type</th>
+<th class="head">Description</th>
+<th class="head">Returns</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Entity</span></tt></td>
+<td>None.  Entities may pass through triggers without consequence.</td>
+<td><tt class="docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">Hostile</span></tt></td>
+<td>None.  Hostiles may pass through triggers without consequence.</td>
+<td><tt class="docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Player</span></tt></td>
+<td>Colliding with a player will cause the trigger to activate and then be destroyed.</td>
+<td><tt class="docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">Trigger</span></tt></td>
+<td>None.  Triggers can pass through each other without consequence.</td>
+<td><tt class="docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Attack</span></tt>,
+<tt class="docutils literal"><span class="pre">Projectile</span></tt></td>
+<td>Depending on the trigger, some projectiles and attacks will cause the
+trigger to actiavte and then be destroyed.</td>
+<td><tt class="docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">Static</span></tt></td>
+<td>None.  Triggers can pass through static geometry without consequence.</td>
+<td><tt class="docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="collision.AttackCollidable">
+<em class="property">class </em><tt class="descclassname">collision.</tt><tt class="descname">AttackCollidable</tt><a class="headerlink" href="#collision.AttackCollidable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles collisions involving attacks.  Attack objects are invisible hitboxes around weapons during an attack state.  They do not physically collide with any objects, but entities will take damage from an attack.</p>
+<dl class="method">
+<dt id="collision.AttackCollidable.getType">
+<tt class="descname">getType</tt><big>(</big><big>)</big><a class="headerlink" href="#collision.AttackCollidable.getType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <tt class="docutils literal"><span class="pre">Entity</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="collision.AttackCollidable.collideWith">
+<tt class="descname">collideWith</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#collision.AttackCollidable.collideWith" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles collisions with each of the other GameObject types.</p>
+<p>The following is a list of collision behaviors the attack will inherit when it collides with a particular GameObject:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="77%" />
+<col width="11%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">GameObject type</th>
+<th class="head">Description</th>
+<th class="head">Returns</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Entity</span></tt>,
+<tt class="docutils literal"><span class="pre">Hostile</span></tt>
+<tt class="docutils literal"><span class="pre">Player</span></tt></td>
+<td>Depending on the attack, the damage modifier may decrease by a factor when
+colliding with an Entity.</td>
+<td><tt class="docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">Trigger</span></tt></td>
+<td>None.  Attacks will pass through triggers without consequence.</td>
+<td><tt class="docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Attack</span></tt></td>
+<td>Depending on the attack (and the attacker), some attacks will be parried/cancelled out
+by each other.</td>
+<td><tt class="docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">Projectile</span></tt></td>
+<td>None.  Attacks will knock projectiles away but will not be affected.</td>
+<td><tt class="docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Static</span></tt></td>
+<td>None.  Attacks can pass through static geometry without consequence.</td>
+<td><tt class="docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="collision.ProjectileCollidable">
+<em class="property">class </em><tt class="descclassname">collision.</tt><tt class="descname">ProjectileCollidable</tt><a class="headerlink" href="#collision.ProjectileCollidable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles collisions involving projectiles.  Projectile collisions are the most complex of the available gameobjects, because they have the most interactions with other objects.</p>
+<dl class="method">
+<dt id="collision.ProjectileCollidable.getType">
+<tt class="descname">getType</tt><big>(</big><big>)</big><a class="headerlink" href="#collision.ProjectileCollidable.getType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <tt class="docutils literal"><span class="pre">Projectile</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="collision.ProjectileCollidable.collideWith">
+<tt class="descname">collideWith</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#collision.ProjectileCollidable.collideWith" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles collisions with each of the other GameObject types.</p>
+<p>The following is a list of collision behaviors the projectile will inherit when it collides with a particular GameObject:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="77%" />
+<col width="11%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">GameObject type</th>
+<th class="head">Description</th>
+<th class="head">Returns</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Entity</span></tt>,
+<tt class="docutils literal"><span class="pre">Hostile</span></tt>
+<tt class="docutils literal"><span class="pre">Player</span></tt></td>
+<td>Upon colliding with an Entity, the projectile will be destroyed.</td>
+<td><tt class="docutils literal"><span class="pre">StopAll</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">Trigger</span></tt></td>
+<td>Upon colliding with a trigger, the projectile will be destroyed.</td>
+<td><tt class="docutils literal"><span class="pre">StopAll</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Attack</span></tt></td>
+<td>Depending on the attack (and the attacker), some projectiles will be knocked away by an
+attack that is timed correctly.</td>
+<td><tt class="docutils literal"><span class="pre">Knockback</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">Projectile</span></tt></td>
+<td>Two projectiles will reflect off of each other.</td>
+<td><tt class="docutils literal"><span class="pre">Bounce</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Static</span></tt></td>
+<td>Depending on the projectile, colliding with static geometry will cause the projectile
+to stop and lodge itself in the level, or be destroyed.</td>
+<td><tt class="docutils literal"><span class="pre">StopAll</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="collision.StaticCollider">
+<em class="property">class </em><tt class="descclassname">collision.</tt><tt class="descname">StaticCollider</tt><a class="headerlink" href="#collision.StaticCollider" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles collisions involving static geometry.  Static objects do not have any special behaviors in this iteration of the game, but this is here for the future when falling blocks/other special case level elements are added.</p>
+<dl class="method">
+<dt id="collision.StaticCollider.getType">
+<tt class="descname">getType</tt><big>(</big><big>)</big><a class="headerlink" href="#collision.StaticCollider.getType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <tt class="docutils literal"><span class="pre">Static</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="collision.StaticCollider.collideWith">
+<tt class="descname">collideWith</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#collision.StaticCollider.collideWith" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles collisions.</p>
+<p>Static objects will always return <tt class="docutils literal"><span class="pre">None</span></tt>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">collision</span></tt> &#8212; Collision Operations</a><ul>
+<li><a class="reference internal" href="#the-collision-sequence">The Collision Sequence</a></li>
+<li><a class="reference internal" href="#checking-for-collisions-the-separating-axis-theorem">Checking for Collisions - the Separating Axis Theorem</a></li>
+<li><a class="reference internal" href="#resolving-collisions">Resolving Collisions</a></li>
+<li><a class="reference internal" href="#collidable-objects">Collidable Objects</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="renderer.html"
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">render</span></tt> &#8212; Renderer and associated functions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="animation.html"
+                        title="next chapter"><tt class="docutils literal docutils literal"><span class="pre">animation</span></tt> &#8212; Sprite animation</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/collision.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="animation.html" title="animation — Sprite animation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="renderer.html" title="render — Renderer and associated functions"
+             >previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, cmcFaide.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

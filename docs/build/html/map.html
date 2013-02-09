@@ -1,0 +1,183 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>map — Map and Tile operations &mdash; Perseus 0.0.1 prototype 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1 prototype 1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Perseus 0.0.1 prototype 1 documentation" href="index.html" />
+    <link rel="next" title="camera — Camera operations" href="camera.html" />
+    <link rel="prev" title="playercontroller — PlayerController" href="playercontroller.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="camera.html" title="camera — Camera operations"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="playercontroller.html" title="playercontroller — PlayerController"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-map">
+<span id="map-map-and-tile-operations"></span><h1><a class="reference internal" href="#module-map" title="map: Handles reading and organizing level and tile data"><tt class="xref py py-mod docutils literal"><span class="pre">map</span></tt></a> &#8212; Map and Tile operations<a class="headerlink" href="#module-map" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="#module-map" title="map: Handles reading and organizing level and tile data"><tt class="xref py py-mod docutils literal"><span class="pre">map</span></tt></a> module includes the <a class="reference internal" href="#map.Map" title="map.Map"><tt class="xref py py-class docutils literal"><span class="pre">Map</span></tt></a> and <a class="reference internal" href="#map.Tile" title="map.Tile"><tt class="xref py py-class docutils literal"><span class="pre">Tile</span></tt></a> classes, and is responsible for reading/parsing map files, and creating levels that the renderer and collider can use.</p>
+<p>Map files are read top left to bottom right, and are oriented in the game in the same manner.</p>
+<hr class="docutils" />
+<dl class="class">
+<dt id="map.Map">
+<em class="property">class </em><tt class="descclassname">map.</tt><tt class="descname">Map</tt><big>(</big><em>map_file</em>, <em>tilesheet</em>, <em>tile_data</em><big>)</big><a class="headerlink" href="#map.Map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a <a class="reference internal" href="#map.Map" title="map.Map"><tt class="xref py py-class docutils literal"><span class="pre">Map</span></tt></a> object based on the map data in <tt class="docutils literal"><span class="pre">map_file</span></tt>.  The result is a 2-D array of <a class="reference internal" href="#map.Tile" title="map.Tile"><tt class="xref py py-class docutils literal"><span class="pre">Tile</span></tt></a> objects, a set of tile dimensions (in worldspace) and a tilesheet.</p>
+<p><tt class="docutils literal"><span class="pre">tile_data</span></tt> is similar to <tt class="docutils literal"><span class="pre">region_data</span></tt> from <tt class="xref py py-class docutils literal"><span class="pre">Animation</span></tt> in that it defines sections of <tt class="docutils literal"><span class="pre">tilesheet</span></tt> that correspond to particular tile types.</p>
+<dl class="method">
+<dt id="map.Map._readMapFile">
+<tt class="descname">_readMapFile</tt><big>(</big><em>map_file</em><big>)</big><a class="headerlink" href="#map.Map._readMapFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads and parses the map file.  Returns a 2-D array of <a class="reference internal" href="#map.Tile" title="map.Tile"><tt class="xref py py-class docutils literal"><span class="pre">Tile</span></tt></a> objects corresponding to the level geometry.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Because the map file is read in backwards from worldspace coordinates, the array must be built from the top down.  At the end of each row of the map, <tt class="docutils literal"><span class="pre">array.insert(0,</span> <span class="pre">row)</span></tt> must be called instead of appending the row on the end of the array.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="map.Map._readTileData">
+<tt class="descname">_readTileData</tt><big>(</big><em>tilesheet</em>, <em>tile_data</em><big>)</big><a class="headerlink" href="#map.Map._readTileData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads tile data and binds Sprites to each tile type.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="map.Map.getTile">
+<tt class="descname">getTile</tt><big>(</big><em>position</em><big>)</big><a class="headerlink" href="#map.Map.getTile" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">getTile</tt><big>(</big><em>tileID</em><big>)</big></dt>
+<dd><p>Takes a worldspace position and returns the <a class="reference internal" href="#map.Tile" title="map.Tile"><tt class="xref py py-class docutils literal"><span class="pre">Tile</span></tt></a> corresponding to that position, or <tt class="docutils literal"><span class="pre">None</span></tt> if the position is empty.</p>
+<p>Can also accept a tile ID.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="map.Map.getTileSize">
+<tt class="descname">getTileSize</tt><big>(</big><big>)</big><a class="headerlink" href="#map.Map.getTileSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the worldpsace tile size of the level.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="map.Map.loadMap">
+<tt class="descname">loadMap</tt><big>(</big><big>)</big><a class="headerlink" href="#map.Map.loadMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an array of Sprites that represents each tile on the map, and returns it for loading into the renderer.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="map.Tile">
+<em class="property">class </em><tt class="descclassname">map.</tt><tt class="descname">Tile</tt><big>(</big><em>id</em>, <em>type</em><span class="optional">[</span>, <em>boundingpoly=None</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#map.Tile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a <a class="reference internal" href="#map.Tile" title="map.Tile"><tt class="xref py py-class docutils literal"><span class="pre">Tile</span></tt></a> object with a unique ID and a type.</p>
+<p>If the type is not zero, the Tile also has a bounding polygon assigned to it.</p>
+<dl class="method">
+<dt id="map.Tile.setTexture">
+<tt class="descname">setTexture</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#map.Tile.setTexture" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alters the texture for this individual tile.  This is used for creating secret areas or altering the look of particular maps.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="map.Tile.getBoundingPoly">
+<tt class="descname">getBoundingPoly</tt><big>(</big><big>)</big><a class="headerlink" href="#map.Tile.getBoundingPoly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the tile&#8217;s bounding poly.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="playercontroller.html"
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">playercontroller</span></tt> &#8212; PlayerController</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="camera.html"
+                        title="next chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">camera</span></tt> &#8212; Camera operations</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/map.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="camera.html" title="camera — Camera operations"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="playercontroller.html" title="playercontroller — PlayerController"
+             >previous</a> |</li>
+        <li><a href="index.html">Perseus 0.0.1 prototype 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, cmcFaide.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
