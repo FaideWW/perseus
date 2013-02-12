@@ -1,93 +1,67 @@
-import math
+from pyglet.graphics import Sprite
+import pyglet.image
 
-from components.position import Position
+class Animation(Object):
+    def __init__(self, spritesheet, region_data, fps, repeats=True):
+        #region data is a filesheet
+        self.spritesheet = spritesheet
+        self.region_data = self._readAnimationData(region_data) 
+        self.frames = self._buildFrames(self.spritesheet, self.region_data)
+        #number of milliseconds between frames
+        self.freq = (1 / fps) * 1000
+        self.time_since = 0
+        self.repeats = repeats
+        self.current_frame = 0
 
-class SpritesheetAnimation(object):
-	def __init__(self, spritesheet, anim_data, fps, position, repeats=True):
-		"""
-			anim_data should include the full filepath to the data file
-			same with spritesheet
-		"""
-		self.imgdata = self.readAnimationData(anim_data)
-		self.spritesheet = spritesheet
-		self.fps = fps
-		self.position = position
-		self.repeats = repeats
-		self.currentframe = 0
-		self.paused = False
+        self.sprite = pyglet.graphics.Sprite(self.frames[0])
 
-		self.images = self.buildFrames(self.imgdata, self.spritesheet)
+    def _readAnimationData(self, region_data):
+        dataArray = []
+        with open(region_data) as r:
+            for line in r.readLines():
+                data = line.rstrip('\n').split(',')
+                if len(data) != 8 or len(data) != 10:
+                    raise TypeError('Region data is invalid.')
+                #translate data into position values
+                data = [Position([int(i), int(j)]) for i, j in zip(data[::2], data[1::2])]
+                dataArray.append(data)
+        return dataArray
 
-		self.spriteRenderer = pyglet.sprite.Sprite(self.images[0])
+    def _buildFrames(self, spritesheet, frame_data):
+        """
+            Gen a bunch of TextureRegions from spritesheet.
+        """
+        sprites = pyglet.image.load(spritesheet)
+        frame_list = []
 
-	def readAnimationData(self, dataFile):
-		dataArray = []
-		with open(dataFile) as animation_data:
-			for line in animation_data.readlines():
-				data = line.rstrip('\n').split(',')
-				data[0] = int(data[0])
-				while len(dataArray) <= data[0]:
-					dataArray.append({})
-				for item in data:
-					if item == data[0]:
-						continue
-					kv = item.split(':')
 
-					# property-ambiguous list comprehension.  
-					# most properties of animation frames are just lists of integers
-					# if we need a string/float comprehension, this will change
-					kv[1] = [int(x) for x in kv[1].split(' ')]
-					dataArray[data[0]][kv[0]] = kv[1]
+        for frame in range(len(frame_data)):
+            x = frame_data[frame][0]
+            y = frame_data[frame][1]
+            w = frame_data[frame][2] - x
+            h = frame_data[frame][3] - y
+            o = Position.zero() if len(frame_data) < 5 else frame_data[frame][4]
 
-		return dataArray
+            frame = sprites.get_region(x,y,w,h)
+            frame.anchor_x = -o.x
+            frame.anchor_y = -o.y
 
-	def buildFrames(self, imgdata, spritesheet):
-		sprites = pyglet.image.load(spritesheet)
-		frameList = []
+            frame_list.append(frame)
+        return frame_list
 
-		for frame in range(len(imgdata)):	
-			if 'region' in imgdata[frame]:
-				x = imgdata[frame]['region'][0]
-				y = imgdata[frame]['region'][1]
-				w = imgdata[frame]['region'][2] - imgdata[frame]['region'][0]
-				h = imgdata[frame]['region'][3] - imgdata[frame]['region'][1]
-				
-				f = sprites.get_region(x,y,w,h)
-				if 'offset' in imgdata[frame]:
-					f.anchor_x = -imgdata[frame]['offset'][0]
-					f.anchor_y = -imgdata[frame]['offset'][1]
+    def update(self, dt):
+        self.time_since = self.time_since + dt
+        if self.time_since >= self.freq:
+            self.nextFrame()
+            self.time_since = self.time_since % self.freq
 
-				frameList.append(f)
-		return frameList
 
-	def setSpecialImageData(self, imgdata, frame=-1):
-		if frame == -1:
-			self.imgdata = imgdata
-		else:
-			self.imgdata[frame] = imgdata
+    def nextFrame(self):
+        if self.repeats:
+            self.current_frame = (self.current_frame + 1) % len(self.frames)
+        else:
+            self.current_frame = min(self.current_frame + 1, len(self.frames) - 1)
+        self.sprite.image = self.frames[self.current_frame]
 
-	def draw(self):
-		self.spriteRenderer.draw()
-
-	def togglePause(self):
-		self.paused = not self.paused
-
-	def igetCurrentFrame(self):
-		return int(math.floor(self.currentframe))
-
-	def update(self, dt):
-		lastFrame = self.currentframe
-		if not self.paused:
-			self.currentframe += (dt * self.fps)
-		self.currentframe %= len(self.images)
-
-		self.spriteRenderer.set_position(self.position.x, self.position.y)
-
-		if lastFrame != self.currentframe:
-			self.changeFrames(self.igetCurrentFrame())
-
-	def changeFrames(self, newframe):
-		self.spriteRenderer.image = self.images[newframe]
-
-		if newframe+1 == len(self.images) and not self.repeats:
-			self.paused = True
+    def getCurrentFrame(self):
+        return self.current_frame

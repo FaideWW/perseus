@@ -29,7 +29,6 @@ The groups from lowest to highest priority are as follows:
 
 Groups are distinguished by their prominence in the game scene.  If two areas of a group overlap, the group with higher priority will be drawn over the other.  Groups may or may not share textures, but one group must use one texture for all objects in that group, or no texture at all (in the case of entities).
 
-For each object in the batch, its position in the world will be interpolated based on the time between game cycle updates and its position/velocity from the last cycle.
 
 .. note:: 
     
@@ -52,6 +51,14 @@ For each object in the batch, its position in the world will be interpolated bas
        .. note::
 
           The GameObject is tied to the object that created it, not the batch.  If the object is destroyed outside of the batch, it is automatically removed from the batch.
+
+    .. method:: addTexturedGroup(groupname, texture)
+
+       Adds a batch group that shares a texture.
+
+       .. note:: 
+
+          The batch acts as a stack; textured groups will be ordered on a FILO basis.
 
     .. method:: setCamera(Camera)
 

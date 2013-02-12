@@ -66,6 +66,15 @@
 <dt id="animation.Animation._readAnimationData">
 <tt class="descname">_readAnimationData</tt><big>(</big><em>region_data</em><big>)</big><a class="headerlink" href="#animation.Animation._readAnimationData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads in the data for splitting up the sprite sheet into individual frames.  Returns a parsed array of coordinates relating to the corners of each frame, and any necessary offset in objectspace for that frame.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Region data is formatted as such:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">tl</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="n">tl</span><span class="o">.</span><span class="n">y</span><span class="p">,</span><span class="n">tr</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="n">tr</span><span class="o">.</span><span class="n">y</span><span class="p">,</span><span class="n">br</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="n">br</span><span class="o">.</span><span class="n">y</span><span class="p">,</span><span class="n">bl</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="n">bl</span><span class="o">.</span><span class="n">y</span><span class="p">,</span><span class="n">o</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="n">o</span><span class="o">.</span><span class="n">y</span>
+</pre></div>
+</div>
+<p>Where each pair of numbers corresponds to a corner of the region, and <tt class="docutils literal"><span class="pre">o</span></tt> is the offset for the frame.</p>
+<p class="last">Repeated for the number of frames in the animation.</p>
+</div>
 </dd></dl>
 
 <dl class="method">

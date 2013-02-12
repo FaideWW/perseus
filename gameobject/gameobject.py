@@ -1,110 +1,83 @@
-from components.position import Position
-from components.velocity import Velocity
-import math
+from components.components import Velocity, Position
 
-class GameObject(object):
-	def __init__(self, global_id):
-		self.gid = global_id
-		self.pos = Position([0,0])
-		self.vel = Velocity([0,0])
-		self.acc = Velocity([0,0])
-		#terminal velocity from gravity
-		self.termV = -20
-		self.max_speed = 4
+MAX_VEL = 10
 
-		self.size = Position([0,0])
+class GameObject(Object):
+    def __init__(self, **kwargs):
+        if 'id' in kwargs:
+            self.id = kwargs['id']
+        else:
+            raise ArgumentError('GameObject properties must contain an ID.')
+        if 'position' in kwargs:
+            self.position = kwargs['position']
+        else:
+            raise ArgumentError('GameObject properties must contain a 2D position.')
+        self.boundingpoly = None if 'boundingpoly' not in kwargs else kwargs['boundingpoly']
+        self.collider = None if 'collider' not in kwargs else kwargs['collider']
+        self.type = None if 'type' not in kwargs else kwargs['type']
+        self.sprite = None if 'sprite' not in kwargs else kwargs['sprite']
+        self.to_render = []
+        if self.sprite is not None:
+            self.to_render.append(self.sprite)
 
-	def initialize(self, img_path, boundingbox, collider):
-		#not sure if I actually need this function.
-		#probably not, it's mostly for convenience
-		#maybe in the future for modding, etc...
-		pass
+        self.dir = 'left'
 
-	def setSize(self, x, y):
-		self.size = Position([x, y])
+        self.vel = Velocity.zero()
+        self.acc = Velocity.zero()
 
-	def getSize(self):
-		return self.size
+        self.maxV = MAX_VEL
 
-	def setSprite(self, img_path):
-		self.sprite = img_path
+    def addGLObject(self, globj):
+        self.to_render.append(globj)
 
-	def getSprite(self):
-		return self.sprite
+    def getRenderables(self):
+        return self.to_render
 
-	def setBoundingBox(self, boundingbox):
-		self.bounding_box = boundingbox
+    def accelerate(self, acc):
+        self.acc = self.acc + acc
 
-	def getBoundingBox(self):
-		return self.boundingbox
+    def stopAcceleration(self):
+        self.acc = Velocity.zero()
 
-	def getBoundingVertices(self):
-		return self.bounding_box.getVertices()
+    def setVelocity(vel):
+        if vel.x < 0:
+            self.dir = 'left'
+        elif vel.x > 0:
+            self.dir = 'right' 
+        self.vel = vel
 
-	def setCollider(self, collider):
-		self.collider = collider
+    def getDirection(self):
+        return self.dir
 
-	def getCollider(self):
-		return self.collider
+    def getWorldSpacePosition(self):
+        return self.position
 
-	def getPosition(self):
-		return self.pos
+    def getVelocity(self):
+        return self.vel
 
-	def getWorldPosition(self):
-		return self.pos + (self.size / 2)
+    def getBoundingPoly(self):
+        return self.boundingpoly
 
-	def setPosition(self, x, y, z=0):
-		self.pos = Position([x,y,z])
+    def getCollider(self):
+        return self.collider
 
-	def getVelocityVector(self):
-		return self.vel
+    def addVelocity(self, rel_vel):
+        self.vel = self.vel + rel_vel
 
-	def getActualVelocityVector(self):
-		if self.vel.mag() > self.max_speed:
-			return self.vel.normalize() * self.max_speed
-		else:
-			return self.vel
+    def setFlags(self, flag_data):
+        #not sure why I put this in for this release.
+        pass
 
-	def setVelocity(self, x, y):
-		if self.vel.y < self.termV:
-			y = self.termV
-		self.vel = Velocity([x,y])
+    def update(self, dt):
+        #add a to v
+        self.vel = self.vel + self.acc * dt
 
-	def setVelocityX(self, x):
-		return self.setVelocity(x, self.getVelocityVector().y)
+        #clamp v
+        self.vel = max(self.vel, self.maxV)
 
-	def setVelocityY(self, y):
-		return self.setVelocity(self.getVelocityVector().x, y)
+        #add p to v
+        self.position = self.position self.vel * dt
 
-	def addVelocity(self, x, y):
-		if self.vel.y < self.termV:
-			y = self.termV
-		self.vel += Velocity([x, y])
-
-	def addVelocityX(self, x):
-		return self.addVelocity(x, 0)
-
-	def addVelocityY(self, y):
-		return self.addVelocity(0, y)
-
-	def getID(self):
-		return self.gid
-
-	def getAcceleration(self):
-		return self.acc
-
-	def setAcceleration(self, acc):
-		self.acc = Velocity(acc)
-
-	def update(self, dt):
-		#acceleration first
-		self.vel += self.acc * dt
-
-		if self.vel.mag() > self.max_speed:
-			#cap speed at the predefined value
-			v = self.vel.normalize() * self.max_speed
-		else:
-			v = self.vel
-
-		#then position
-		self.pos += v * dt
+        for item in self.to_render:
+            item.position = (self.position.x, self.position.y)
+            

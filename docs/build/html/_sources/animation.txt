@@ -21,6 +21,18 @@ The :mod:`animation` module includes the Animation class and handles animated sp
 
       Reads in the data for splitting up the sprite sheet into individual frames.  Returns a parsed array of coordinates relating to the corners of each frame, and any necessary offset in objectspace for that frame.
 
+      .. note::
+
+         Region data is formatted as such:
+
+         .. code-block:: python
+
+            tl.x,tl.y,tr.x,tr.y,br.x,br.y,bl.x,bl.y,o.x,o.y
+
+         Where each pair of numbers corresponds to a corner of the region, and ``o`` is the offset for the frame.
+
+         Repeated for the number of frames in the animation.
+
    .. method:: _buildFrames(spritesheet, frame_data)
 
       Slices the spritesheet into regions for each frame, and then loads each region and any necessary transformations (offset) into a frame array.  Returns that frame array.

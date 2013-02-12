@@ -23,7 +23,6 @@ In future iterations, :class:`GameObject` will include functionality for health.
 
    GameObjects that participate in collision detection must declare a type (by default this behavior is disabled), or include a custom collider.
 
-   If a sprite is declared, 
 
    .. method:: addGLObject(GLObject)
 
@@ -45,6 +44,10 @@ In future iterations, :class:`GameObject` will include functionality for health.
 
       Erases the existing velocity vector and replaces it with ``vel``.
 
+   .. method:: getDirection()
+
+      Returns the direction the GameObject is currently facing.  (Only important on the Player and NPCs)
+
    .. method:: getWorldSpacePosition()
 
       Returns the worldspace position of the GameObject.
@@ -56,6 +59,10 @@ In future iterations, :class:`GameObject` will include functionality for health.
    .. method:: getBoundingPoly()
 
       Returns the bounding polygon for this GameObject.
+
+   .. method:: getCollider()
+
+      Returns the Collidable component for this GameObject
 
    .. method:: addVelocity(rel_vel)
 

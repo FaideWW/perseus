@@ -106,6 +106,22 @@
 <dd><p>Returns <tt class="docutils literal"><span class="pre">True</span></tt> if the two vectors have the same direction.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="component.Vector.reflect">
+<tt class="descname">reflect</tt><big>(</big><em>axis</em><big>)</big><a class="headerlink" href="#component.Vector.reflect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a geometric reflection of the vector along a particular axis.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">the formula for reflection is <tt class="docutils literal"><span class="pre">2*(V</span> <span class="pre">dot</span> <span class="pre">N)</span> <span class="pre">*</span> <span class="pre">N</span> <span class="pre">-</span> <span class="pre">V</span></tt></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="component.Vector.angleBetween">
+<tt class="descname">angleBetween</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#component.Vector.angleBetween" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the angle (in degrees) between this Vector and <tt class="docutils literal"><span class="pre">other</span></tt></p>
+</dd></dl>
+
 <dl class="staticmethod">
 <dt id="component.Vector.zero">
 <em class="property">static </em><tt class="descname">zero</tt><big>(</big><big>)</big><a class="headerlink" href="#component.Vector.zero" title="Permalink to this definition">¶</a></dt>
@@ -154,7 +170,7 @@
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="camera.html"
-                        title="previous chapter"><tt class="docutils literal docutils literal"><span class="pre">camera</span></tt> &#8212; Camera operations</a></p>
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">camera</span></tt> &#8212; Camera operations</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="appendix.html"
                         title="next chapter">Appendix</a></p>

@@ -47,6 +47,18 @@ Vector operations
 
       Returns ``True`` if the two vectors have the same direction.
 
+   .. method:: reflect(axis)
+
+      Returns a geometric reflection of the vector along a particular axis.
+
+      .. note:: 
+
+         the formula for reflection is ``2*(V dot N) * N - V``
+
+   .. method:: angleBetween(other)
+
+      Returns the angle (in degrees) between this Vector and ``other``
+
    .. py:staticmethod:: zero()
 
       Returns the zero vector in 3-space.

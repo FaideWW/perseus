@@ -72,7 +72,6 @@
 <li>hud</li>
 </ol>
 <p>Groups are distinguished by their prominence in the game scene.  If two areas of a group overlap, the group with higher priority will be drawn over the other.  Groups may or may not share textures, but one group must use one texture for all objects in that group, or no texture at all (in the case of entities).</p>
-<p>For each object in the batch, its position in the world will be interpolated based on the time between game cycle updates and its position/velocity from the last cycle.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">In order to accomodate multiple renderers, we have to assume the screen has already been cleared before the renderer&#8217;s <tt class="xref py py-meth docutils literal"><span class="pre">draw()</span></tt> is invoked.  This way one renderer will not overwrite another&#8217;s <tt class="xref py py-meth docutils literal"><span class="pre">draw()</span></tt>.</p>
@@ -92,6 +91,16 @@
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The GameObject is tied to the object that created it, not the batch.  If the object is destroyed outside of the batch, it is automatically removed from the batch.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="render.Render.addTexturedGroup">
+<tt class="descname">addTexturedGroup</tt><big>(</big><em>groupname</em>, <em>texture</em><big>)</big><a class="headerlink" href="#render.Render.addTexturedGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a batch group that shares a texture.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The batch acts as a stack; textured groups will be ordered on a FILO basis.</p>
 </div>
 </dd></dl>
 
@@ -189,7 +198,7 @@ The <a class="reference internal" href="#render.GLObject" title="render.GLObject
                         title="previous chapter">Version Information</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="collision.html"
-                        title="next chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">collision</span></tt> &#8212; Collision Operations</a></p>
+                        title="next chapter"><tt class="docutils literal"><span class="pre">collision</span></tt> &#8212; Collision Operations</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/renderer.txt"

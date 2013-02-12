@@ -26,9 +26,9 @@ Camera extends :class:`GameObject` but does not have a physical presence in the 
 
       Changes the viewport size.  If ``transition`` is not 0, the zoom effect takes ``transition`` milliseconds.
 
-   .. method:: toClipSpace(ws_position)
+   .. method:: toClipSpace()
 
-      Transforms a worldspace position into clipspace.  See :ref:`draw_space_translation` for more information.
+      Returns the translation of the worldspace origin to this camera's clipspace. See :ref:`draw_space_translation` for more information.
 
    .. method:: update(dt)
 

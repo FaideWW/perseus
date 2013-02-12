@@ -91,6 +91,9 @@ class GLObject(Object):
         self.transform_matrix = transform_matrix
         self.count = len(vertex_data)
 
+        #formatted as a tuple for compatibility with pyglet sprites
+        self.position = (0,0)
+
         """
             vertex_data is formatted as:
                 [
@@ -112,6 +115,7 @@ class GLObject(Object):
             None if tex_data is None else ('t2f', tuple([tuple(pair) for pair in tex_data]))
         )
 
+        
 
 
     def __init__(self, globj):

@@ -68,7 +68,6 @@
 <dd><p>Creates an empty GameObject shell that has a presence in worldspace.</p>
 <p>GameObjects are identified to most systems by their <tt class="docutils literal"><span class="pre">id</span></tt></p>
 <p>GameObjects that participate in collision detection must declare a type (by default this behavior is disabled), or include a custom collider.</p>
-<p>If a sprite is declared,</p>
 <dl class="method">
 <dt id="gameobject.GameObject.addGLObject">
 <tt class="descname">addGLObject</tt><big>(</big><em>GLObject</em><big>)</big><a class="headerlink" href="#gameobject.GameObject.addGLObject" title="Permalink to this definition">¶</a></dt>
@@ -100,6 +99,12 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="gameobject.GameObject.getDirection">
+<tt class="descname">getDirection</tt><big>(</big><big>)</big><a class="headerlink" href="#gameobject.GameObject.getDirection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the direction the GameObject is currently facing.  (Only important on the Player and NPCs)</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="gameobject.GameObject.getWorldSpacePosition">
 <tt class="descname">getWorldSpacePosition</tt><big>(</big><big>)</big><a class="headerlink" href="#gameobject.GameObject.getWorldSpacePosition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the worldspace position of the GameObject.</p>
@@ -115,6 +120,12 @@
 <dt id="gameobject.GameObject.getBoundingPoly">
 <tt class="descname">getBoundingPoly</tt><big>(</big><big>)</big><a class="headerlink" href="#gameobject.GameObject.getBoundingPoly" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the bounding polygon for this GameObject.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gameobject.GameObject.getCollider">
+<tt class="descname">getCollider</tt><big>(</big><big>)</big><a class="headerlink" href="#gameobject.GameObject.getCollider" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Collidable component for this GameObject</p>
 </dd></dl>
 
 <dl class="method">
@@ -153,7 +164,7 @@
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
   <p class="topless"><a href="animation.html"
-                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">animation</span></tt> &#8212; Sprite animation</a></p>
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">animation</span></tt> &#8212; Sprite animation</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="player.html"
                         title="next chapter"><tt class="docutils literal"><span class="pre">player</span></tt> &#8212; Player Character</a></p>
