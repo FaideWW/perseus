@@ -22,6 +22,12 @@ The :class:`PlayerController` is the interface between Pyglet's input events and
 
       Takes a key configuration file and maps each action to a particular key.
 
+      .. note::
+
+         Key config is formatted as such:
+
+         ``keyCode:action``
+
    .. method:: keyDown(key)
 
       Accepts a key press.  If the key is mapped to an action and isn't already on the list of pressed keys, then perform that action.

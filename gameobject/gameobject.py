@@ -78,6 +78,9 @@ class GameObject(Object):
         #add p to v
         self.position = self.position self.vel * dt
 
+        if self.sprite is not None:
+            self.sprite.update(dt) 
+
         for item in self.to_render:
             item.position = (self.position.x, self.position.y)
             
