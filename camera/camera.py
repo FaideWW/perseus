@@ -17,7 +17,6 @@ class Camera(gameobject.GameObject):
         self.viewport_transition = transition
 
     def toClipSpace(self):
-        print (self.getWorldSpacePosition() * -1) + self.viewport / 2
         return (self.getWorldSpacePosition() * -1) + self.viewport / 2
 
     def update(self, dt):

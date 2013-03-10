@@ -1,5 +1,8 @@
+import gameobject
+import component.component as component
 
-ROLL_TIMER = 1000
+
+ROLL_TIMER = 1
 
 PLAYER_X_RUN = 4
 PLAYER_X_SPRINT = 1.5
@@ -8,9 +11,10 @@ PLAYER_Y_JUMP = 6
 PLAYER_Y_ROLLJUMP = 8
 PLAYER_Y_DBLJUMP = 3
 
-class Player(GameObject):
+
+class Player(gameobject.GameObject):
     def __init__(self, **kwargs):
-        super(Player, self).__init__(kwargs)
+        super(Player, self).__init__(**kwargs)
         self.movement_state = 'IDLE'
         self.landed = True
         self.roll_timer = 0
@@ -20,9 +24,9 @@ class Player(GameObject):
 
     def checkState(self):
         #state checks
-        if self.vel == vel.zero():
+        if self.vel == component.Velocity.zero():
             self.movement_state = 'IDLE'
-        if not self.landed and (self.movement_state is not 'AIRONE' or self,movement_state is not 'AIRTWO'):
+        if not self.landed and (self.movement_state is not 'AIRONE' or self.movement_state is not 'AIRTWO'):
             self.movement_state = 'AIRONE'
         if self.movement_state is 'AIRONE' or self.movement_state is 'AIRTWO' and self.landed and self.vel.y != 0:
             self.movement_state = 'LAND'
@@ -41,50 +45,64 @@ class Player(GameObject):
             else:
                 self.movement_state = 'AIRONE'
 
-    def left(self):
-        self.vel = -PLAYER_X_RUN
-        if self.movement_state is 'SPRINT':
-            self.vel = self.vel * PLAYER_X_SPRINT
-        elif self.movement_state is 'CROUCH':
-            self.vel = self.vel * PLAYER_X_CROUCH
+    def left(self, pressed):
+        if pressed:
+            self.vel = component.Velocity([-PLAYER_X_RUN, self.vel.y])
+            print self.vel
+            if self.movement_state is 'SPRINT':
+                self.vel = self.vel * PLAYER_X_SPRINT
+            elif self.movement_state is 'CROUCH':
+                self.vel = self.vel * PLAYER_X_CROUCH
+            else:
+                self.movement_state = 'RUN'
         else:
-            self.movement_state = 'RUN'
+            self.checkState()
 
-    def right(self):
-        self.vel = PLAYER_X_RUN
-        if self.movement_state is 'SPRINT':
-            self.vel = self.vel * PLAYER_X_SPRINT
-        elif self.movement_state is 'CROUCH':
-            self.vel = self.vel * PLAYER_X_CROUCH
+    def right(self, pressed):
+        if pressed:
+            self.vel = component.Velocity([PLAYER_X_RUN, self.vel.y])
+            print self.vel
+            if self.movement_state is 'SPRINT':
+                self.vel = self.vel * PLAYER_X_SPRINT
+            elif self.movement_state is 'CROUCH':
+                self.vel = self.vel * PLAYER_X_CROUCH
+            else:
+                self.movement_state = 'RUN'
         else:
-            self.movement_state = 'RUN'
+            self.checkState()
 
     def sprint(self):
         if self.movement_state is 'RUN':
             self.vel = self.vel * PLAYER_X_SPRINT
         self.movement_state = 'SPRINT'
 
-    def down(self):
-        if self.movement_state is 'IDLE' or self.movement_state is 'RUN':
-            self.movement_state = 'CROUCH'
-        elif self.movement_state is 'SPRINT':
-            self.movement_state = 'SLIDE'
-        elif self.movement_state is 'LAND':
-            self.roll_timer = 0
-            self.movement_state = 'ROLL'
+    def down(self, pressed):
+        if pressed:
+            if self.movement_state is 'IDLE' or self.movement_state is 'RUN':
+                self.movement_state = 'CROUCH'
+            elif self.movement_state is 'SPRINT':
+                self.movement_state = 'SLIDE'
+            elif self.movement_state is 'LAND':
+                self.roll_timer = 0
+                self.movement_state = 'ROLL'
+        else:
+            self.checkState()
 
-    def up(self):
-        if self.movement_state is 'IDLE' or self.movement_state is 'RUN' or self.movement_state is 'SPRINT':
-            self.landed = False
-            self.vel.y = PLAYER_Y_JUMP
-            self.movement_state = 'AIRONE'
-        elif self.movement_state is 'ROLL':
-            self.landed = False
-            self.vel.y = PLAYER_Y_ROLLJUMP
-            self.movement_state = 'AIRONE'
-        elif self.movement_state is 'AIRONE':
-            self.vel.y = self.vel.y + PLAYER_Y_DBLJUMP
-            self.movement_state = 'AIRTWO'
+    def up(self, pressed):
+        if pressed:
+            if self.movement_state is 'IDLE' or self.movement_state is 'RUN' or self.movement_state is 'SPRINT':
+                self.landed = False
+                self.vel.y = PLAYER_Y_JUMP
+                self.movement_state = 'AIRONE'
+            elif self.movement_state is 'ROLL':
+                self.landed = False
+                self.vel.y = PLAYER_Y_ROLLJUMP
+                self.movement_state = 'AIRONE'
+            elif self.movement_state is 'AIRONE':
+                self.vel.y = self.vel.y + PLAYER_Y_DBLJUMP
+                self.movement_state = 'AIRTWO'
+        else:
+            self.checkState()
 
     def stop(self):
         self.vel.x = 0

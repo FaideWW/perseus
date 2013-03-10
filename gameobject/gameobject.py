@@ -1,8 +1,7 @@
 from component.component import Velocity, Position
-from render.render import Color
-from render.renderable import Renderable
 
 MAX_VEL = 10
+
 
 class GameObject(object):
     def __init__(self, **kwargs):
@@ -64,12 +63,12 @@ class GameObject(object):
         self.acc = Velocity.zero()
 
     def showBoundingPoly(self):
-        self.to_render.append(self.boundingpoly.generateGLObject([0.0,1.0,0.0,1.0]))
+        self.to_render.append(self.boundingpoly.generateGLObject([0.0, 1.0, 0.0, 1.0]))
 
     def hideBoundingPoly(self):
         pass
 
-    def setVelocity(vel):
+    def setVelocity(self, vel):
         if vel.x < 0:
             self.dir = 'left'
         elif vel.x > 0:
@@ -111,16 +110,17 @@ class GameObject(object):
         #add p to v
         self.position = self.position + self.vel * dt
 
-
+        print 'adjusted velocity: ' + str(self.vel * dt)
 
         if self.sprite is not None:
-            self.sprite.update(dt) 
+            self.sprite.update(dt)
 
         for item in self.to_render:
             item.position = (self.position.x, self.position.y)
 
         for ren in self.renderables:
             ren.updatePosition(self.position, self.vel)
-            
+
+
 class ArgumentError(Exception):
     pass

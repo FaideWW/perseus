@@ -120,13 +120,10 @@ class Render(object):
             batch_obj.set_position(batch_obj.x + position.x, batch_obj.y + position.y)
         else:
             #batch_obj is a vertex list
-            print [i for i in batch_obj.vertices]
             #add x position
             batch_obj.vertices[::2] = [x + position.x for x in batch_obj.vertices[::2]]
             #add y position
             batch_obj.vertices[1::2] = [y + position.y for y in batch_obj.vertices[1::2]]
-            print batch_obj.vertices
-
 
 
     def setBlitPosition(self, index, position):
