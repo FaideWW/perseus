@@ -1,6 +1,6 @@
 from pyglet.window import key
 
-class PlayerController(Object):
+class PlayerController(object):
     def __init__(self, player):
         self.player = player
         self.keymap = {

@@ -1,8 +1,10 @@
-from components.components import Velocity, Position
+from component.component import Velocity, Position
+from render.render import Color
+from render.renderable import Renderable
 
 MAX_VEL = 10
 
-class GameObject(Object):
+class GameObject(object):
     def __init__(self, **kwargs):
         if 'id' in kwargs:
             self.id = kwargs['id']
@@ -15,29 +17,57 @@ class GameObject(Object):
         self.boundingpoly = None if 'boundingpoly' not in kwargs else kwargs['boundingpoly']
         self.collider = None if 'collider' not in kwargs else kwargs['collider']
         self.type = None if 'type' not in kwargs else kwargs['type']
+        self.position = Position.zero() if 'position' not in kwargs else kwargs['position']
         self.sprite = None if 'sprite' not in kwargs else kwargs['sprite']
+        self.size = None if 'size' not in kwargs else kwargs['size']
+
         self.to_render = []
         if self.sprite is not None:
             self.to_render.append(self.sprite)
 
+        self.renderables = []
+
         self.dir = 'left'
+
+        self.renderer_index = None
 
         self.vel = Velocity.zero()
         self.acc = Velocity.zero()
 
         self.maxV = MAX_VEL
 
+    def addRenderables(self, rens):
+        for ren in rens:
+            ren.updatePosition(self.position, self.vel)
+        self.renderables += rens
+        print self.renderables
+
     def addGLObject(self, globj):
         self.to_render.append(globj)
 
-    def getRenderables(self):
+    def setRenderIndex(self, index):
+        self.renderer_index = index
+
+    def getSize(self):
+        return self.size
+
+    def getToRender(self):
         return self.to_render
+
+    def getRenderables(self):
+        return self.renderables
 
     def accelerate(self, acc):
         self.acc = self.acc + acc
 
     def stopAcceleration(self):
         self.acc = Velocity.zero()
+
+    def showBoundingPoly(self):
+        self.to_render.append(self.boundingpoly.generateGLObject([0.0,1.0,0.0,1.0]))
+
+    def hideBoundingPoly(self):
+        pass
 
     def setVelocity(vel):
         if vel.x < 0:
@@ -48,6 +78,9 @@ class GameObject(Object):
 
     def getDirection(self):
         return self.dir
+
+    def setPosition(self, pos):
+        self.position = pos
 
     def getWorldSpacePosition(self):
         return self.position
@@ -76,11 +109,18 @@ class GameObject(Object):
         self.vel = max(self.vel, self.maxV)
 
         #add p to v
-        self.position = self.position self.vel * dt
+        self.position = self.position + self.vel * dt
+
+
 
         if self.sprite is not None:
             self.sprite.update(dt) 
 
         for item in self.to_render:
             item.position = (self.position.x, self.position.y)
+
+        for ren in self.renderables:
+            ren.updatePosition(self.position, self.vel)
             
+class ArgumentError(Exception):
+    pass

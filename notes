@@ -1,0 +1,31 @@
+Managing render-GO communication
+--------------------------------
+
+renderer
+-holds vertex list
+-returns an index to the vertex list when an object is batched
+
+gameobject
+-holds position and velocity
+-on update, update the renderer's vertex list with a new position
+
+how does gameobect transmit that info to renderer?
+-external manager
+--gameobject manager is a likely outcome: can handle garbage collection for gameobjects no longer being rendered, etc.
+
+-internal reference
+
+
+how to handle interpolation?
+-save velocity in the renderer too
+--seems like the only reasonable way to do it, considering the methodology
+--will have to be a feature that's added later on
+
+this should all be refactored into a Renderable component in the future
+  aka later today
+
+
+for GOs that manage multiple renderables:
+-store a list of indexes
+-store a list of renderables at the same index in the renderer
+-store a 'block' of renderables, return the start and end indexes as a pair or vector

@@ -27,7 +27,7 @@ The :mod:`animation` module includes the Animation class and handles animated sp
 
          .. code-block:: python
 
-            tl.x,tl.y,tr.x,tr.y,br.x,br.y,bl.x,bl.y,o.x,o.y
+            tl.x,tl.y,br.x,br.y,o.x,o.y
 
          Where each pair of numbers corresponds to a corner of the region, and ``o`` is the offset for the frame.
 

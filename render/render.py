@@ -2,6 +2,10 @@ import pyglet.gl
 import pyglet.graphics
 import pyglet.sprite
 
+import component.component as component
+import animation.animation as animation
+import renderable
+
 """
     module render
     written by cmcFaide
@@ -21,7 +25,7 @@ class TextureEnableGroup(pyglet.graphics.OrderedGroup):
     def unset_state(self):
         glDisable(GL_TEXTURE_2D)
 
-texture_enable_group = TextureEnableGroup()
+texture_enable_group = TextureEnableGroup(0)
 
 class TexturedGroup(pyglet.graphics.OrderedGroup):
     def __init__(self,order,texture):
@@ -38,34 +42,95 @@ class TexturedGroup(pyglet.graphics.OrderedGroup):
 
 
 
-class Render(Object):
+class Render(object):
     def __init__(self):
 
         #init the batch
         self.batch = pyglet.graphics.Batch()
+
+        self.batch_list = []
+        self.batch_vertexes = []
+        
+        self.blit_positions = []
+        self.blit_list = []
 
         #set up the group dict
         self.groups = {}
 
         self.cam = None
 
+    """
+        Adds a Renderable or group of Renderables to the batch,
+        and allocates a chunk of space in the vertex list for vertices
+
+        Returns a Pair representing the index of the allocated block and
+        the size of the block
+
+        if the object is a list:
+            save the current length (starting index for the block),
+            and start with 0 size
+            call addToBatch on each element
+            sum the sizes of all the Pairs (in case one element is another list)
+            return the allocation as the starting index and the total size
+    """
     def addToBatch(self, obj, group=None):
+
         if group is not None and group not in self.groups:
             raise Exception('No group named ' + group + '.')
-
-        if isinstance(obj, GLObject):
-            self.batch.add(
+        if type(obj) == list:
+            obj_ret = []
+            for o in obj:
+                obj_ret.append(self.addToBatch(o, group))
+            return obj_ret
+        elif isinstance(obj, GLObject):
+            self.batch_vertexes.append(self.batch.add(
                 obj.count,
                 obj.draw_mode,
                 group,
-                obj.vertex_list
-            )
+                obj.vertices,
+                obj.colors
+            ))
         elif isinstance(obj, pyglet.sprite.Sprite):
+            self.batch_vertexes.append(obj)
+            self.batch_list.append(obj)
             obj.batch = self.batch
             obj.group = group
+        elif isinstance(obj, animation.Animation):
+            spr = pyglet.sprite.Sprite(obj.asPygletAnimation())
+            self.batch_vertexes.append(spr)
+            self.batch_list.append(spr)
+            spr.batch = self.batch
+            #obj.sprite.group = group
         else:
-            raise TypeError('Not a valid renderable.')
+            raise TypeError('Not a valid renderable.  Type ',type(obj),'cannot be rendered')
+        return len(self.batch_vertexes) - 1
 
+    def addToBlit(self, obj, position=component.Vector.zero()):
+        if isinstance(obj, pyglet.image.Texture):
+            self.blit_positions.append(position)
+            self.blit_list.append(obj)
+        return len(self.blit_list) - 1
+
+    def changeBatchPosition(self, index, position):
+        if index < 0 or index >= len(self.batch_vertexes):
+            return
+        
+        batch_obj = self.batch_vertexes[index]
+        if isinstance(batch_obj, pyglet.sprite.Sprite):
+            batch_obj.set_position(batch_obj.x + position.x, batch_obj.y + position.y)
+        else:
+            #batch_obj is a vertex list
+            print [i for i in batch_obj.vertices]
+            #add x position
+            batch_obj.vertices[::2] = [x + position.x for x in batch_obj.vertices[::2]]
+            #add y position
+            batch_obj.vertices[1::2] = [y + position.y for y in batch_obj.vertices[1::2]]
+            print batch_obj.vertices
+
+
+
+    def setBlitPosition(self, index, position):
+        pass
 
     def setCamera(self, cam):
         self.cam = cam
@@ -76,15 +141,23 @@ class Render(Object):
         pyglet.gl.glPushMatrix()
         pyglet.gl.glTranslatef(to_clipspace.x, to_clipspace.y, 0)
 
+        for obj in self.blit_list:
+            obj.blit(0,0)
         #draw the batch
         self.batch.draw()
 
         pyglet.gl.glPopMatrix()
 
 
+    def generateRenderables(self, obj_list, group=None):
+        """
+            returns a list of batched renderables
+            (blitted renderables not compatible)
+        """
+        return [renderable.Renderable(obj, self, self.addToBatch(obj,group)) for obj in obj_list]
 
 
-class GLObject(Object):
+class GLObject(object):
     def __init__(self, draw_mode=None, vertex_data=[], transform_matrix=[], color_data=None, tex_data=None):
         #Create an empty object
         self.draw_mode = draw_mode
@@ -105,28 +178,25 @@ class GLObject(Object):
                 ]
         """
 
-        vertices = tuple([tuple(pair) for pair in vertex_data])
-        colors = tuple(Color.white().rgba) * self.count
+        self.vertices = ('v2f', tuple([coord for pair in vertex_data for coord in pair]))
+        self.colors = ('c4f', tuple(Color.white().rgba if color_data is None else color_data) * self.count)
 
-        self.vertex_list = (
-            self.count,
-            ('v2f', vertices),
-            ('c4f', colors),
-            None if tex_data is None else ('t2f', tuple([tuple(pair) for pair in tex_data]))
+        if tex_data is not None:
+            self.vertex_list = self.vertex_list + ('t2f', tuple([tuple(pair) for pair in tex_data]))
+
+    @staticmethod
+    def rectFromPoints(topleft, bottomright,color=None):
+        return GLObject(
+            pyglet.gl.GL_LINES,
+            [[topleft.x,topleft.y],[bottomright.x,topleft.y],[bottomright.x,topleft.y],[bottomright.x,bottomright.y],[bottomright.x,bottomright.y],[topleft.x,bottomright.y],[topleft.x,bottomright.y],[topleft.x,topleft.y]],
+            [],
+            color,
         )
 
-        
 
-
-    def __init__(self, globj):
-        #Clone globj
-        self.draw_mode = globj.draw_mode
-        self.transform_matrix = globj.transform_matrix
-        self.vertex_list = globj.vertex_list
-
-class Color(Object):
+class Color(object):
     def __init__(num_list):
-        if len(num_list) != 4 or any(not isinstance(x, float) for x in num_list)
+        if len(num_list) != 4 or any(not isinstance(x, float) for x in num_list):
             raise Exception('Color accepts four floating point numbers')
 
         self.rgba = [min(0.0,max(x, 1.0)) for x in num_list]

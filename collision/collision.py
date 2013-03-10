@@ -1,6 +1,7 @@
-from components.components import Velocity
+from component.component import Velocity, Vector
+from render.render import GLObject
 
-class Collider(Object):
+class Collider(object):
     def __init__(self):
         self.collision_queue = []
 
@@ -79,19 +80,19 @@ class Collider(Object):
                     #this really should accept a factor, but that's a challenge for another build
                     obj.setVelocity(obj.getVelocity() * 0.2)
 
-class ObjectCollision(Object):
+class ObjectCollision(object):
     def __init__(self, obj1, obj2, axis=None):
         self.obj1 = obj1
         self.obj2 = obj2
         self.axis = axis
 
     def compare(self, other):
-        return  self.obj1 is other.obj1 and 
-                self.obj2 is other.obj2 or 
-                self.obj1 is other.obj2 and
-                self.obj2 is other.obj1
+        return  (self.obj1 is other.obj1 and 
+                 self.obj2 is other.obj2 or 
+                 self.obj1 is other.obj2 and 
+                 self.obj2 is other.obj1)
 
-class BoundingPoly(Object):
+class BoundingPoly(object):
     def __init__(self, vertices):
         self.vertex_list = vertices
         self.normal_list = self._genNormalVectors(self.vertex_list)
@@ -99,7 +100,7 @@ class BoundingPoly(Object):
 
     def _genNormalVectors(self, vertices):
         #huzzah for list comprehensions!
-        return [(dest - source).rot(90) for source, dest in zip(vertices, vertices[1:])]
+        return [(Vector(dest) - Vector(source)).rot(90) for source, dest in zip(vertices, vertices[1:])]
 
     def getVertices(self):
         return self.vertex_list
@@ -107,14 +108,23 @@ class BoundingPoly(Object):
     def getAxes(self):
         return self.normal_list
 
+    def generateGLObject(self, color):
+        topleft = Vector([float(min([point[0] for point in self.vertex_list])), float(max([point[1] for point in self.vertex_list]))]) / 2
+        botright = Vector([float(max([point[0] for point in self.vertex_list])), float(min([point[1] for point in self.vertex_list]))]) / 2
+
+        return GLObject.rectFromPoints(topleft, botright, color)
+
     def project(self, axis):
         min_value = min([vertex.project(axis) for vertex in self.vertex_list])
         max_value = max([vertex.project(axis) for vertex in self.vertex_list])
         return [min_value,max_value]
 
+    @staticmethod
+    def fromSize(size):
+        return BoundingPoly([[-size.x,size.y],[size.x,size.y],[size.x,-size.y],[-size.x,-size.y]])
 
 
-class Collidable(Object):
+class Collidable(object):
     def __init__(self):
         raise NotImplementedError('Collidable is an interface.  Please use one of the available subclasses.')
 

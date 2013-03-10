@@ -8,29 +8,36 @@ import camera.camera as camera
 import component.component as component
 import gameobject.gameobject as gameobject
 import render.render as render
+import maps.map as maps
 
 window = pyglet.window.Window()
 
 window_res = component.Vector(window.get_size())
 
-print window_res
-
 fps = pyglet.clock.ClockDisplay()
 last_frame = pyglet.clock.tick()
 r = render.Render()
+print window_res
 c = camera.Camera(component.Vector(window_res))
-c.setPosition(component.Position.zero())
 r.setCamera(c)
 asset_path = '/'.join(sys.argv[0].rsplit('/')[:-1]) + 'assets/'
 walk_sheet = asset_path + 'player/walk_sheet.png'
 walk_info = asset_path + 'player/walk_sheet.tile'
+map_sheet = asset_path + 'maps/map1.map'
+
+#obviously this only contains one tile
+map_tiles = asset_path + 'png/block.png'
+
+map_info = asset_path + 'maps/map1.td'
 
 player_size = component.Vector([72,93])
 
-a = animation.Animation(walk_sheet, walk_info, 1)
+a = animation.Animation(walk_sheet, walk_info, 20)
 b = collision.BoundingPoly.fromSize(player_size)
 o = player_size / 2
-p = component.Position([50,50])
+p = component.Position([200,150]);
+
+c.setPosition(p)
 
 g = gameobject.GameObject(
     id=0, 
@@ -42,9 +49,16 @@ g = gameobject.GameObject(
     size=player_size,
     origin=o)
 
+#c.setTarget(g);
+print c.getWorldSpacePosition();
+print g.getWorldSpacePosition();
 g.showBoundingPoly()
-r.addToBatch(g.getRenderables())
+g.addRenderables(r.generateRenderables(g.getToRender()))
 print pyglet.window.get_platform().get_default_display().get_default_screen()
+
+m = maps.Map(map_sheet, map_tiles, map_info, component.Vector([70,70]))
+#print m
+r.addToBlit(m.mapAsSprite())
 
 @window.event
 def on_draw():
@@ -56,9 +70,9 @@ def on_draw():
     except UnboundLocalError:
         dt = this_frame
 
-
     r.draw(dt)
 
+    g.update(dt)
 
     last_frame = this_frame
 

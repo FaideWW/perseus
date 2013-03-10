@@ -1,3 +1,0 @@
--=wall
- =none
-*=spawn
