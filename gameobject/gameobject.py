@@ -110,8 +110,6 @@ class GameObject(object):
         #add p to v
         self.position = self.position + self.vel * dt
 
-        print 'adjusted velocity: ' + str(self.vel * dt)
-
         if self.sprite is not None:
             self.sprite.update(dt)
 

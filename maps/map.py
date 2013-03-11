@@ -1,5 +1,6 @@
 from collision.collision import BoundingPoly
 from component.component import Position
+import component.unit as unit
 import pyglet.image
 
 class Map(object):
@@ -38,7 +39,7 @@ class Map(object):
                 elif len(data) != 8:
                     raise TypeError('Tile data is invalid.')
                 else:
-                    data = [Position([int(i), int(j)]) for i,j in zip(data[::2], data[1::2])]
+                    data = [Position([int(i), int(j)]) for i, j in zip(data[::2], data[1::2])]
                 data_array.append(data)
                 tile_types.append(tiletype)
         tilesheet = pyglet.image.load(tilesheet)
@@ -46,9 +47,9 @@ class Map(object):
             x = data_array[tile][0]
             y = data_array[tile][1]
             w = data_array[tile][2]
-            h = data_array[tile][3] 
+            h = data_array[tile][3]
             #print data_array[tile]
-            tile_array[tile_types[tile]] = tilesheet.get_region(x,y,w-x,h-y)
+            tile_array[tile_types[tile]] = tilesheet.get_region(x, y, w-x, h-y)
 
         return tile_array
 
@@ -75,7 +76,7 @@ class Map(object):
                 ident += 1
         return map_array
 
-    def getTile(data):
+    def getTile(self, data):
         if isinstance(data, Position):
             #get a tile based on map coordinates
             row_index = int(data.y // self.t_size.y)
@@ -101,12 +102,13 @@ class Map(object):
         return [tile.sprite for row in self.map for tile in row if tile.sprite]
 
     def mapAsSprite(self):
+        p_size = unit.Unit.toPixels(self.t_size)
         #returns a large sprite of the map, textures and all
-        map_w = max([len(row) for row in self.map]) * self.t_size.y
-        map_h = len(self.map) * self.t_size.x
+        map_w = max([len(row) for row in self.map]) * p_size.y
+        map_h = len(self.map) * p_size.x
         tile_x = 0
         #tile_y starts at max and counts down because texture origin begins at the bottom
-        tile_y = map_h - self.t_size.y
+        tile_y = map_h - p_size.y
         #6048 = pyglet.gl.GL_RGBA
         map_image = pyglet.image.Texture.create(map_w, map_h, 6408, True)
         for row in range(len(self.map)):
@@ -114,14 +116,15 @@ class Map(object):
                 tile = self.map[row][tile_index]
                 if tile.sprite:
                     map_image.blit_into(pyglet.image.load(self.tilesheet), tile_x, tile_y, 0)
-                tile_x += self.t_size.x
+                tile_x += p_size.x
             tile_x = 0
-            tile_y -= self.t_size.y
+            tile_y -= p_size.y
 
         return map_image
 
     def __str__(self):
         return str(self.map)
+
 
 class Tile(object):
     def __init__(self, tileid, tiletype, sprite=None, boundingpoly=None):

@@ -17,6 +17,8 @@ class Player(gameobject.GameObject):
         super(Player, self).__init__(**kwargs)
         self.movement_state = 'IDLE'
         self.landed = True
+        self.moving_left = False
+        self.moving_right = False
         self.roll_timer = 0
 
     def getMovementState(self):
@@ -47,8 +49,8 @@ class Player(gameobject.GameObject):
 
     def left(self, pressed):
         if pressed:
+            self.moving_left = True
             self.vel = component.Velocity([-PLAYER_X_RUN, self.vel.y])
-            print self.vel
             if self.movement_state is 'SPRINT':
                 self.vel = self.vel * PLAYER_X_SPRINT
             elif self.movement_state is 'CROUCH':
@@ -56,12 +58,15 @@ class Player(gameobject.GameObject):
             else:
                 self.movement_state = 'RUN'
         else:
+            self.moving_left = False
+            if not self.moving_right:
+                self.stop()
             self.checkState()
 
     def right(self, pressed):
         if pressed:
+            self.moving_right = True
             self.vel = component.Velocity([PLAYER_X_RUN, self.vel.y])
-            print self.vel
             if self.movement_state is 'SPRINT':
                 self.vel = self.vel * PLAYER_X_SPRINT
             elif self.movement_state is 'CROUCH':
@@ -69,6 +74,9 @@ class Player(gameobject.GameObject):
             else:
                 self.movement_state = 'RUN'
         else:
+            self.moving_right = False
+            if not self.moving_left:
+                self.stop()
             self.checkState()
 
     def sprint(self):
@@ -105,7 +113,7 @@ class Player(gameobject.GameObject):
             self.checkState()
 
     def stop(self):
-        self.vel.x = 0
+        self.vel = component.Velocity([0, self.vel.y])
 
     def update(self, dt):
         """

@@ -3,6 +3,7 @@ import pyglet.graphics
 import pyglet.sprite
 
 import component.component as component
+import component.unit as unit
 import animation.animation as animation
 import renderable
 
@@ -15,31 +16,32 @@ import renderable
 
 # Set up textured batch groups
 
+
 class TextureEnableGroup(pyglet.graphics.OrderedGroup):
     def __init__(self, order):
         super(TextureEnableGroup, self).__init__(order=order)
 
     def set_state(self):
-        glEnable(GL_TEXTURE_2D)
+        pyglet.gl.glEnable(pyglet.gl.GL_TEXTURE_2D)
 
     def unset_state(self):
-        glDisable(GL_TEXTURE_2D)
+        pyglet.gl.glDisable(pyglet.gl.GL_TEXTURE_2D)
 
 texture_enable_group = TextureEnableGroup(0)
 
+
 class TexturedGroup(pyglet.graphics.OrderedGroup):
-    def __init__(self,order,texture):
+    def __init__(self, order, texture):
         super(TexturedGroup, self).__init__(order=order, parent=texture_enable_group)
-        if texture.target != GL_TEXTURE_2D:
+        if texture.target != pyglet.gl.GL_TEXTURE_2D:
             raise TypeError('Invalid texure target')
         self.texture = texture
 
     def set_state(self):
-        glBindTexture(GL_TEXTURE_2D, self.texture.id)
+        pyglet.gl.glBindTexture(pyglet.gl.GL_TEXTURE_2D, self.texture.id)
 
     def __eq__(self, other):
         return (self.__class__ is other.__class__ and self.texture == other.__class__)
-
 
 
 class Render(object):
@@ -50,7 +52,6 @@ class Render(object):
 
         self.batch_list = []
         self.batch_vertexes = []
-        
         self.blit_positions = []
         self.blit_list = []
 
@@ -102,7 +103,7 @@ class Render(object):
             spr.batch = self.batch
             #obj.sprite.group = group
         else:
-            raise TypeError('Not a valid renderable.  Type ',type(obj),'cannot be rendered')
+            raise TypeError('Not a valid renderable.  Type ', type(obj), 'cannot be rendered')
         return len(self.batch_vertexes) - 1
 
     def addToBlit(self, obj, position=component.Vector.zero()):
@@ -114,7 +115,8 @@ class Render(object):
     def changeBatchPosition(self, index, position):
         if index < 0 or index >= len(self.batch_vertexes):
             return
-        
+
+        position = unit.Unit.toPixels(position)
         batch_obj = self.batch_vertexes[index]
         if isinstance(batch_obj, pyglet.sprite.Sprite):
             batch_obj.set_position(batch_obj.x + position.x, batch_obj.y + position.y)
@@ -124,7 +126,6 @@ class Render(object):
             batch_obj.vertices[::2] = [x + position.x for x in batch_obj.vertices[::2]]
             #add y position
             batch_obj.vertices[1::2] = [y + position.y for y in batch_obj.vertices[1::2]]
-
 
     def setBlitPosition(self, index, position):
         pass
@@ -139,19 +140,18 @@ class Render(object):
         pyglet.gl.glTranslatef(to_clipspace.x, to_clipspace.y, 0)
 
         for obj in self.blit_list:
-            obj.blit(0,0)
+            obj.blit(0, 0)
         #draw the batch
         self.batch.draw()
 
         pyglet.gl.glPopMatrix()
-
 
     def generateRenderables(self, obj_list, group=None):
         """
             returns a list of batched renderables
             (blitted renderables not compatible)
         """
-        return [renderable.Renderable(obj, self, self.addToBatch(obj,group)) for obj in obj_list]
+        return [renderable.Renderable(obj, self, self.addToBatch(obj, group)) for obj in obj_list]
 
 
 class GLObject(object):
@@ -162,7 +162,7 @@ class GLObject(object):
         self.count = len(vertex_data)
 
         #formatted as a tuple for compatibility with pyglet sprites
-        self.position = (0,0)
+        self.position = (0, 0)
 
         """
             vertex_data is formatted as:
@@ -182,22 +182,22 @@ class GLObject(object):
             self.vertex_list = self.vertex_list + ('t2f', tuple([tuple(pair) for pair in tex_data]))
 
     @staticmethod
-    def rectFromPoints(topleft, bottomright,color=None):
+    def rectFromPoints(topleft, bottomright, color=None):
         return GLObject(
             pyglet.gl.GL_LINES,
-            [[topleft.x,topleft.y],[bottomright.x,topleft.y],[bottomright.x,topleft.y],[bottomright.x,bottomright.y],[bottomright.x,bottomright.y],[topleft.x,bottomright.y],[topleft.x,bottomright.y],[topleft.x,topleft.y]],
+            [[topleft.x, topleft.y], [bottomright.x, topleft.y], [bottomright.x, topleft.y], [bottomright.x, bottomright.y], [bottomright.x, bottomright.y], [topleft.x, bottomright.y], [topleft.x, bottomright.y], [topleft.x, topleft.y]],
             [],
             color,
         )
 
 
 class Color(object):
-    def __init__(num_list):
+    def __init__(self, num_list):
         if len(num_list) != 4 or any(not isinstance(x, float) for x in num_list):
             raise Exception('Color accepts four floating point numbers')
 
-        self.rgba = [min(0.0,max(x, 1.0)) for x in num_list]
+        self.rgba = [min(0.0, max(i, 1.0)) for i in num_list]
 
     @staticmethod
     def white():
-        return Color([1.0,1.0,1.0,1.0])
+        return Color([1.0, 1.0, 1.0, 1.0])

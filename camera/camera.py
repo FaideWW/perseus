@@ -23,7 +23,7 @@ class Camera(gameobject.GameObject):
         if self.target_transition > 0:
             self.target_transition = self.target_transition - dt
             dest_direction = self.target - self.getWorldSpacePosition()
-            to_move = dest_direction * min((dt / self.target_transition),1)
+            to_move = dest_direction * min((dt / self.target_transition), 1)
             self.position = self.position + to_move
         else:
             self.position = self.target.getWorldSpacePosition()

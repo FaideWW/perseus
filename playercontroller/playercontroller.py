@@ -36,17 +36,13 @@ class PlayerController(object):
         self.pressed_keys.remove(key)
 
     def left(self, pressed):
-        print 'left'
         self.player.left(pressed)
 
     def right(self, pressed):
-        print 'right'
         self.player.right(pressed)
 
     def up(self, pressed):
-        print 'up'
         self.player.up(pressed)
 
     def down(self, pressed):
-        print 'down'
         self.player.down(pressed)
