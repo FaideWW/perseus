@@ -15,7 +15,7 @@ PLAYER_Y_DBLJUMP = 3
 class Player(gameobject.GameObject):
     def __init__(self, **kwargs):
         super(Player, self).__init__(**kwargs)
-        self.movement_state = 'IDLE'
+        self.setState('IDLE')
         self.landed = True
         self.moving_left = False
         self.moving_right = False
@@ -27,25 +27,25 @@ class Player(gameobject.GameObject):
     def checkState(self):
         #state checks
         if self.vel == component.Velocity.zero():
-            self.movement_state = 'IDLE'
+            self.setState('IDLE')
         if not self.landed and (self.movement_state is not 'AIRONE' or self.movement_state is not 'AIRTWO'):
-            self.movement_state = 'AIRONE'
+            self.setState('AIRONE')
         if self.movement_state is 'AIRONE' or self.movement_state is 'AIRTWO' and self.landed and self.vel.y != 0:
-            self.movement_state = 'LAND'
+            self.setState('LAND')
             self.roll_timer = 0
         if self.movement_state is 'LAND' and self.roll_timer > ROLL_TIMER:
             if self.vel.x > 0:
                 self.movment_state = 'RUN'
             else:
-                self.movement_state = 'IDLE'
+                self.setState('IDLE')
         if self.movement_state is 'ROLL' and self.roll_timer > ROLL_TIMER:
             if self.landed:
                 if self.vel.x > 0:
-                    self.movement_state = 'RUN'
+                    self.setState('RUN')
                 else:
-                    self.movement_state = 'IDLE'
+                    self.setState('IDLE')
             else:
-                self.movement_state = 'AIRONE'
+                self.setState('AIRONE')
 
     def left(self, pressed):
         if pressed:
@@ -56,7 +56,7 @@ class Player(gameobject.GameObject):
             elif self.movement_state is 'CROUCH':
                 self.vel = self.vel * PLAYER_X_CROUCH
             else:
-                self.movement_state = 'RUN'
+                self.setState('RUN')
         else:
             self.moving_left = False
             if not self.moving_right:
@@ -72,7 +72,7 @@ class Player(gameobject.GameObject):
             elif self.movement_state is 'CROUCH':
                 self.vel = self.vel * PLAYER_X_CROUCH
             else:
-                self.movement_state = 'RUN'
+                self.setState('RUN')
         else:
             self.moving_right = False
             if not self.moving_left:
@@ -82,17 +82,17 @@ class Player(gameobject.GameObject):
     def sprint(self):
         if self.movement_state is 'RUN':
             self.vel = self.vel * PLAYER_X_SPRINT
-        self.movement_state = 'SPRINT'
+        self.setState('SPRINT')
 
     def down(self, pressed):
         if pressed:
             if self.movement_state is 'IDLE' or self.movement_state is 'RUN':
-                self.movement_state = 'CROUCH'
+                self.setState('CROUCH')
             elif self.movement_state is 'SPRINT':
-                self.movement_state = 'SLIDE'
+                self.setState('SLIDE')
             elif self.movement_state is 'LAND':
                 self.roll_timer = 0
-                self.movement_state = 'ROLL'
+                self.setState('ROLL')
         else:
             self.checkState()
 
@@ -101,19 +101,23 @@ class Player(gameobject.GameObject):
             if self.movement_state is 'IDLE' or self.movement_state is 'RUN' or self.movement_state is 'SPRINT':
                 self.landed = False
                 self.vel.y = PLAYER_Y_JUMP
-                self.movement_state = 'AIRONE'
+                self.setState('AIRONE')
             elif self.movement_state is 'ROLL':
                 self.landed = False
                 self.vel.y = PLAYER_Y_ROLLJUMP
-                self.movement_state = 'AIRONE'
+                self.setState('AIRONE')
             elif self.movement_state is 'AIRONE':
                 self.vel.y = self.vel.y + PLAYER_Y_DBLJUMP
-                self.movement_state = 'AIRTWO'
+                self.setState('AIRTWO')
         else:
             self.checkState()
 
     def stop(self):
         self.vel = component.Velocity([0, self.vel.y])
+
+    def setState(self, state):
+        print 'state: ' + state
+        self.movement_state = state
 
     def update(self, dt):
         """

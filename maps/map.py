@@ -1,7 +1,9 @@
-from collision.collision import BoundingPoly
-from component.component import Position
+import collision.collision as collision
+import component.component as component
 import component.unit as unit
+import gameobject.gameobject as gameobject
 import pyglet.image
+
 
 class Map(object):
     def __init__(self, map_file, tilesheet, tile_data, tilesize):
@@ -39,7 +41,7 @@ class Map(object):
                 elif len(data) != 8:
                     raise TypeError('Tile data is invalid.')
                 else:
-                    data = [Position([int(i), int(j)]) for i, j in zip(data[::2], data[1::2])]
+                    data = [component.Position([int(i), int(j)]) for i, j in zip(data[::2], data[1::2])]
                 data_array.append(data)
                 tile_types.append(tiletype)
         tilesheet = pyglet.image.load(tilesheet)
@@ -58,10 +60,10 @@ class Map(object):
         ident = 0
 
         #boundingpoly sizes
-        bp_tl = Position([-self.t_size.x/2, -self.t_size.y/2])
-        bp_tr = Position([self.t_size.x/2, -self.t_size.y/2])
-        bp_br = Position([self.t_size.x/2, self.t_size.y/2])
-        bp_bl = Position([-self.t_size.x/2, self.t_size.y/2])
+        bp_tl = component.Position([-self.t_size.x/2, -self.t_size.y/2])
+        bp_tr = component.Position([self.t_size.x/2, -self.t_size.y/2])
+        bp_br = component.Position([self.t_size.x/2, self.t_size.y/2])
+        bp_bl = component.Position([-self.t_size.x/2, self.t_size.y/2])
 
         for y in range(len(mapdata)):
             map_array[y] = [None] * len(mapdata[y])
@@ -70,14 +72,60 @@ class Map(object):
                 bp = None
                 if mapdata[y][x] in tiledata:
                     tilesprite = tiledata[mapdata[y][x]]
-                    bp = BoundingPoly([bp_tl, bp_tr, bp_br, bp_bl])
+                    bp = collision.BoundingPoly([bp_tl, bp_tr, bp_br, bp_bl])
 
                 map_array[y][x] = Tile(ident, mapdata[y][x], tilesprite, bp)
                 ident += 1
+
+        #loop through again and build edge data for each tile
+        #for now we're treating all tiles as having four solid edges (no slopes or fancy bits)
+        for y in range(len(mapdata)):
+            for x in range(len(mapdata[y])):
+                tile = map_array[y][x]
+                #edges wind clockwise from north
+                edges = []
+                try:
+                    if map_array[y+1][x] is not None:
+                        edges.append(Tile.EDGE_SOLID)
+                    else:
+                        edges.append(Tile.EDGE_NONE)
+                except IndexError:
+                    #if we're on the outside of the map, give the tiles a solid edge
+                    edges.append(Tile.EDGE_SOLID)
+
+                try:
+                    if map_array[y][x+1] is not None:
+                        edges.append(Tile.EDGE_SOLID)
+                    else:
+                        edges.append(Tile.EDGE_NONE)
+                except IndexError:
+                    #if we're on the outside of the map, give the tiles a solid edge
+                    edges.append(Tile.EDGE_SOLID)
+
+                try:
+                    if map_array[y-1][x] is not None:
+                        edges.append(Tile.EDGE_SOLID)
+                    else:
+                        edges.append(Tile.EDGE_NONE)
+                except IndexError:
+                    #if we're on the outside of the map, give the tiles a solid edge
+                    edges.append(Tile.EDGE_SOLID)
+
+                try:
+                    if map_array[y][x-1] is not None:
+                        edges.append(Tile.EDGE_SOLID)
+                    else:
+                        edges.append(Tile.EDGE_NONE)
+                except IndexError:
+                    #if we're on the outside of the map, give the tiles a solid edge
+                    edges.append(Tile.EDGE_SOLID)
+
+                tile.setEdgeData(edges)
+
         return map_array
 
     def getTile(self, data):
-        if isinstance(data, Position):
+        if isinstance(data, component.Position):
             #get a tile based on map coordinates
             row_index = int(data.y // self.t_size.y)
             col_index = int(data.x // self.t_size.x)
@@ -122,16 +170,36 @@ class Map(object):
 
         return map_image
 
+    def generateBoundingPolys(self):
+        """
+            Generates a set of merged bounding polygons
+        """
+
     def __str__(self):
         return str(self.map)
 
 
-class Tile(object):
-    def __init__(self, tileid, tiletype, sprite=None, boundingpoly=None):
+class Tile(gameobject.GameObject):
+
+    #enumerate edge types
+    EDGE_NONE = 0
+    EDGE_SOLID = 1
+    EDGE_INTERESTING = 2
+
+    def __init__(self, tileid, tiletype, sprite=None, boundingpoly=None, **kwargs):
         self.id = tileid
         self.type = tiletype
-        self.sprite = sprite
-        self.boundingpoly = boundingpoly
+        kwargs['id'] = 'map' + str(tileid)
+        kwargs['sprite'] = sprite
+        kwargs['boundingpoly'] = boundingpoly
+        super(Tile, self).__init__(**kwargs)
+        self.edge_data = []
+
+    def setEdgeData(self, edge_data):
+        self.edge_data = edge_data
+
+    def getEdgeData(self):
+        return self.edge_data
 
     def setTexture(self, texture_region):
         self.sprite = texture_region

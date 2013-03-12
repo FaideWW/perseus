@@ -9,10 +9,7 @@ class GameObject(object):
             self.id = kwargs['id']
         else:
             raise ArgumentError('GameObject properties must contain an ID.')
-        if 'position' in kwargs:
-            self.position = kwargs['position']
-        else:
-            raise ArgumentError('GameObject properties must contain a 2D position.')
+        self.position = None if 'position' not in kwargs else kwargs['position']
         self.boundingpoly = None if 'boundingpoly' not in kwargs else kwargs['boundingpoly']
         self.collider = None if 'collider' not in kwargs else kwargs['collider']
         self.type = None if 'type' not in kwargs else kwargs['type']

@@ -1,6 +1,7 @@
 from component.component import Velocity, Vector
 from render.render import GLObject
 
+
 class Collider(object):
     def __init__(self):
         self.collision_queue = []
@@ -29,11 +30,11 @@ class Collider(object):
         collisions = []
         for match in possibles:
             collider = match.obj1.getBoundingPoly() if match.obj1.getVelocity().mag() > match.obj1.getVelocity().mag() else match.obj2.getBoundingPoly()
-            colldiee = match.obj2.getBoundingPoly() if collider is match.obj1 else match.obj1.getBoundingPoly()
+            collidee = match.obj2.getBoundingPoly() if collider is match.obj1 else match.obj1.getBoundingPoly()
 
             collisionExists = True
-
-            collision_axis  = None
+            collision_depth = None
+            collision_axis = None
 
             for axis in collidee.getAxes():
                 projection1 = collider.project(axis)
@@ -44,7 +45,7 @@ class Collider(object):
                     break
                 else:
                     axis_depth = max(projection1.max() - projection2.min(), projection2.max() - projection1.min())
-                    if collision_depth > axis_depth or collision_axis is None:
+                    if collision_axis is None or collision_depth > axis_depth:
                         collision_axis = axis
                         collision_depth = axis_depth
 
@@ -80,6 +81,7 @@ class Collider(object):
                     #this really should accept a factor, but that's a challenge for another build
                     obj.setVelocity(obj.getVelocity() * 0.2)
 
+
 class ObjectCollision(object):
     def __init__(self, obj1, obj2, axis=None):
         self.obj1 = obj1
@@ -87,16 +89,13 @@ class ObjectCollision(object):
         self.axis = axis
 
     def compare(self, other):
-        return  (self.obj1 is other.obj1 and 
-                 self.obj2 is other.obj2 or 
-                 self.obj1 is other.obj2 and 
-                 self.obj2 is other.obj1)
+        return (self.obj1 is other.obj1 and self.obj2 is other.obj2 or self.obj1 is other.obj2 and self.obj2 is other.obj1)
+
 
 class BoundingPoly(object):
     def __init__(self, vertices):
         self.vertex_list = vertices
         self.normal_list = self._genNormalVectors(self.vertex_list)
-
 
     def _genNormalVectors(self, vertices):
         #huzzah for list comprehensions!
@@ -117,11 +116,11 @@ class BoundingPoly(object):
     def project(self, axis):
         min_value = min([vertex.project(axis) for vertex in self.vertex_list])
         max_value = max([vertex.project(axis) for vertex in self.vertex_list])
-        return [min_value,max_value]
+        return [min_value, max_value]
 
     @staticmethod
     def fromSize(size):
-        return BoundingPoly([[-size.x,size.y],[size.x,size.y],[size.x,-size.y],[-size.x,-size.y]])
+        return BoundingPoly([[-size.x, size.y], [size.x, size.y], [size.x, -size.y], [-size.x, -size.y]])
 
 
 class Collidable(object):
@@ -152,6 +151,7 @@ class EntityCollidable(Collidable):
 
         #if the code reaches this point there's an invalid type
         raise TypeError('Invalid collision type.')
+
 
 class HostileCollidable(Collidable):
     def __init__(self):
@@ -194,6 +194,7 @@ class PlayerCollidable(Collidable):
         #if the code reaches this point there's an invalid type
         raise TypeError('Invalid collision type.')
 
+
 class TriggerCollidable(Collidable):
     def __init__(self):
         pass
@@ -202,22 +203,9 @@ class TriggerCollidable(Collidable):
         return 'Trigger'
 
     def collideWith(self, ctype):
-        if ctype in ['Entity', 'Hostile', 'Player', 'Trigger', 'Attack', 'Projectile', 'Static']: 
+        if ctype in ['Entity', 'Hostile', 'Player', 'Trigger', 'Attack', 'Projectile', 'Static']:
             return None
 
-        #if the code reaches this point there's an invalid type
-        raise TypeError('Invalid collision type.')
-
-class AttackCollidable(Collidable):
-    def __init__(self):
-        pass
-
-    def getType(self):
-        return 'Attack'
-
-    def collideWith(self, ctype):
-        if ctype in ['Entity', 'Hostile', 'Player', 'Trigger', 'Attack', 'Projectile', 'Static']: 
-            return None
         #if the code reaches this point there's an invalid type
         raise TypeError('Invalid collision type.')
 
@@ -230,10 +218,11 @@ class AttackCollidable(Collidable):
         return 'Attack'
 
     def collideWith(self, ctype):
-        if ctype in ['Entity', 'Hostile', 'Player', 'Trigger', 'Attack', 'Projectile', 'Static']: 
+        if ctype in ['Entity', 'Hostile', 'Player', 'Trigger', 'Attack', 'Projectile', 'Static']:
             return None
         #if the code reaches this point there's an invalid type
         raise TypeError('Invalid collision type.')
+
 
 class ProjectileCollidable(Collidable):
     def __init__(self):
@@ -241,7 +230,6 @@ class ProjectileCollidable(Collidable):
 
     def getType(self):
         return 'Projectile'
-
 
     def collideWith(self, ctype):
         if ctype is 'Entity' or ctype is 'Hostile' or ctype is 'Player':
@@ -257,6 +245,7 @@ class ProjectileCollidable(Collidable):
 
         #if the code reaches this point there's an invalid type
         raise TypeError('Invalid collision type.')
+
 
 class StaticCollidable(Collidable):
     def __init__(self):
