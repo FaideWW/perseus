@@ -1,122 +1,50 @@
-from component.component import Velocity, Vector
-from render.render import GLObject
-
-
-class Collider(object):
-    def __init__(self):
-        self.collision_queue = []
-
-    def detectCollisions(self, objects):
-
-        possibles = self._broadPhase(objects)
-        self.collision_queue = self._narrowPhase(possibles)
-
-    def _broadPhase(self, objects):
-        possibles = []
-        for i in range(len(objects)-1):
-            j = i + 1
-            dist = (objects[i].getWorldSpacePosition() - objects[j].getWorldSpacePosition()).mag()
-            max_dist = objects[i].getVelocity().mag() + objects[j].getVelocity().mag()
-            if dist < max_dist:
-                possible = ObjectCollision(objects[i], objects[j])
-                if True in [possible.compare(n) for n in possibles]:
-                    continue
-                else:
-                    possibles.append(possible)
-
-        return possibles
-
-    def _narrowPhase(self, possibles):
-        collisions = []
-        for match in possibles:
-            collider = match.obj1.getBoundingPoly() if match.obj1.getVelocity().mag() > match.obj1.getVelocity().mag() else match.obj2.getBoundingPoly()
-            collidee = match.obj2.getBoundingPoly() if collider is match.obj1 else match.obj1.getBoundingPoly()
-
-            collisionExists = True
-            collision_depth = None
-            collision_axis = None
-
-            for axis in collidee.getAxes():
-                projection1 = collider.project(axis)
-                projection2 = collidee.project(axis)
-
-                if projection1.max() < projection2.min() or projection1.min() > projection2.max():
-                    collisionExists = False
-                    break
-                else:
-                    axis_depth = max(projection1.max() - projection2.min(), projection2.max() - projection1.min())
-                    if collision_axis is None or collision_depth > axis_depth:
-                        collision_axis = axis
-                        collision_depth = axis_depth
-
-            if collisionExists:
-                #get the collision axis
-                match.axis = collision_axis
-                collisions.append(match)
-        return collisions
-
-    def resolveCollisions(self, collisions):
-        for collision in collisions:
-            obj1 = collision.obj1
-            obj2 = collision.obj2
-            reaction1 = obj1.collideWith(obj2.getCollider().getType())
-            reaction2 = obj2.collideWith(obj1.getCollider().getType())
-
-            for reaction, obj in zip([reaction1, reaction2], [obj1, obj2]):
-                if reaction is 'Bounce':
-                    #reflect the velocity along the normal then reverse it
-                    obj.setVelocity((obj.getVelocity().reflect(collision.axis) * -1))
-                elif reaction is 'Stop':
-                    reflection = obj.getVelocity().reflect(collision.axis) * -1
-                    #"flatten" the reflection along the collision axis, but maintain the corresponding velocity
-                    incident_velocity = reflection.project(collision.axis.rot(90))
-                    obj.setVelocity(incident_velocity)
-                elif reaction is 'StopAll':
-                    obj.setVelocity(Velocity.zero())
-                elif reaction is 'Knockback':
-                    #set the velocity to a preset reverse jump
-                    new_velocity = Velocity([(-1 if obj.getDirection is 'right' else 1), 1])
-                    obj.setVelocity(new_velocity)
-                elif reaction is 'Slow':
-                    #this really should accept a factor, but that's a challenge for another build
-                    obj.setVelocity(obj.getVelocity() * 0.2)
-
-
-class ObjectCollision(object):
-    def __init__(self, obj1, obj2, axis=None):
-        self.obj1 = obj1
-        self.obj2 = obj2
-        self.axis = axis
-
-    def compare(self, other):
-        return (self.obj1 is other.obj1 and self.obj2 is other.obj2 or self.obj1 is other.obj2 and self.obj2 is other.obj1)
+import component.component as component
+import render.render as render
+import component.unit as unit
 
 
 class BoundingPoly(object):
     def __init__(self, vertices):
         self.vertex_list = vertices
         self.normal_list = self._genNormalVectors(self.vertex_list)
+        self.sides = [True for x in enumerate(self.normal_list)]
 
     def _genNormalVectors(self, vertices):
         #huzzah for list comprehensions!
-        return [(Vector(dest) - Vector(source)).rot(90) for source, dest in zip(vertices, vertices[1:])]
+        vertices.append(vertices[0])
+        return [(component.Vector(dest) - component.Vector(source)).rot(90) for source, dest in zip(vertices, vertices[1:])]
 
     def getVertices(self):
         return self.vertex_list
 
     def getAxes(self):
-        return self.normal_list
+        return [axis for axis, mask in zip(self.normal_list, self.sides) if mask]
 
     def generateGLObject(self, color):
-        topleft = Vector([float(min([point[0] for point in self.vertex_list])), float(max([point[1] for point in self.vertex_list]))]) / 2
-        botright = Vector([float(max([point[0] for point in self.vertex_list])), float(min([point[1] for point in self.vertex_list]))]) / 2
+        topleft = component.Vector([float(min([point[0] for point in self.vertex_list])), float(max([point[1] for point in self.vertex_list]))])
+        botright = component.Vector([float(max([point[0] for point in self.vertex_list])), float(min([point[1] for point in self.vertex_list]))])
 
-        return GLObject.rectFromPoints(topleft, botright, color)
+        return render.GLObject.rectFromPoints(unit.Unit.toPixels(topleft), unit.Unit.toPixels(botright), color)
 
     def project(self, axis):
-        min_value = min([vertex.project(axis) for vertex in self.vertex_list])
-        max_value = max([vertex.project(axis) for vertex in self.vertex_list])
+        min_value = min([component.Vector(vertex).project(axis) for vertex in self.vertex_list])
+        max_value = max([component.Vector(vertex).project(axis) for vertex in self.vertex_list])
         return [min_value, max_value]
+
+    def offset(self, position):
+        return BoundingPoly([component.Vector(vertex) + position for vertex in self.vertex_list])
+
+    def positionToString(self, position):
+        return [component.Vector(vertex) + position for vertex in self.vertex_list]
+
+    def disableSide(self, side):
+        self.sides[side] = False
+
+    def enableSide(self, side):
+        self.sides[side] = True
+
+    def toggleSide(self, side):
+        self.sides[side] = not self.sides[side]
 
     @staticmethod
     def fromSize(size):

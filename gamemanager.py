@@ -2,11 +2,12 @@ import pyglet
 import sys
 
 import animation.animation as animation
-import collision.collision as collision
+import collision.collision
+import collision.collider
 import camera.camera as camera
 import component.component as component
 import component.unit as unit
-import gameobject.player as player
+import gameobject.player
 import render.render as render
 import maps.map as maps
 import playercontroller.playercontroller as playercontroller
@@ -36,18 +37,19 @@ map_info = asset_path + 'maps/map1.td'
 
 player_size = unit.Unit.toUnits(component.Vector([72, 93]))
 
+print 'psize', player_size
 a = animation.Animation(walk_sheet, walk_info, 20)
-b = collision.BoundingPoly.fromSize(player_size)
+b = collision.collision.BoundingPoly.fromSize(player_size / 2)
 o = player_size / 2
 p = component.Position([2, 2])
 
 c.setPosition(p)
 
-g = player.Player(
+g = gameobject.player.Player(
     id=0,
     position=p,
     boundingpoly=b,
-    collider=collision.PlayerCollidable(),
+    collider=collision.collision.PlayerCollidable(),
     type='Player',
     sprite=a,
     size=player_size,
@@ -59,18 +61,25 @@ pc = playercontroller.PlayerController(g)
 print c.getWorldSpacePosition()
 print g.getWorldSpacePosition()
 g.showBoundingPoly()
+print g.getToRender()
 g.addRenderables(r.generateRenderables(g.getToRender()))
 print pyglet.window.get_platform().get_default_display().get_default_screen()
 
 m = maps.Map(map_sheet, map_tiles, map_info, component.Vector([1, 1]))
 #print m
 r.addToBlit(m.mapAsSprite())
+print g.getRenderables()
 
+cd = collision.collider.Collider()
+
+objs = m.getTileList()
+for o in objs:
+    o.showBoundingPoly(r)
+objs.append(g)
 
 @window.event
 def on_draw():
     window.clear()
-    fps.draw()
     this_frame = pyglet.clock.tick()
     try:
         dt = this_frame - last_frame
@@ -79,10 +88,9 @@ def on_draw():
 
     r.draw(dt)
 
-    g.update(dt)
-
     last_frame = this_frame
 
+    fps.draw()
 
 @window.event
 def on_key_press(symbol, modifiers):
@@ -95,8 +103,9 @@ def on_key_release(symbol, modifiers):
 
 
 def update(dt):
-    dt *= 1000
-    a.update(dt)
+    g.update(dt)
+    cd.detectCollisions(objs, m)
+    cd.resolveCollisions(cd.collision_queue)
 
 pyglet.clock.schedule_interval(update, 1/60.0)
 pyglet.app.run()

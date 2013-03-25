@@ -1,4 +1,4 @@
-from component.component import Velocity, Position
+import component.component as component
 
 MAX_VEL = 10
 
@@ -13,9 +13,11 @@ class GameObject(object):
         self.boundingpoly = None if 'boundingpoly' not in kwargs else kwargs['boundingpoly']
         self.collider = None if 'collider' not in kwargs else kwargs['collider']
         self.type = None if 'type' not in kwargs else kwargs['type']
-        self.position = Position.zero() if 'position' not in kwargs else kwargs['position']
+        self.position = component.Position.zero() if 'position' not in kwargs else kwargs['position']
         self.sprite = None if 'sprite' not in kwargs else kwargs['sprite']
         self.size = None if 'size' not in kwargs else kwargs['size']
+
+        self.showingBoundingPoly = False
 
         self.to_render = []
         if self.sprite is not None:
@@ -27,8 +29,8 @@ class GameObject(object):
 
         self.renderer_index = None
 
-        self.vel = Velocity.zero()
-        self.acc = Velocity.zero()
+        self.vel = component.Velocity.zero()
+        self.acc = component.Velocity.zero()
 
         self.maxV = MAX_VEL
 
@@ -36,7 +38,6 @@ class GameObject(object):
         for ren in rens:
             ren.updatePosition(self.position, self.vel)
         self.renderables += rens
-        print self.renderables
 
     def addGLObject(self, globj):
         self.to_render.append(globj)
@@ -57,10 +58,16 @@ class GameObject(object):
         self.acc = self.acc + acc
 
     def stopAcceleration(self):
-        self.acc = Velocity.zero()
+        self.acc = component.Velocity.zero()
 
-    def showBoundingPoly(self):
-        self.to_render.append(self.boundingpoly.generateGLObject([0.0, 1.0, 0.0, 1.0]))
+    def showBoundingPoly(self, r=None):
+        if not self.showingBoundingPoly:
+            self.showingBoundingPoly = True
+            if self.boundingpoly is not None:
+                if r is None:
+                    self.to_render.append(self.boundingpoly.generateGLObject([0.0, 1.0, 0.0, 1.0]))
+                else:
+                    self.addRenderables(r.generateRenderables([self.boundingpoly.generateGLObject([0.0, 1.0, 0.0, 1.0])]))
 
     def hideBoundingPoly(self):
         pass
@@ -69,7 +76,7 @@ class GameObject(object):
         if vel.x < 0:
             self.dir = 'left'
         elif vel.x > 0:
-            self.dir = 'right' 
+            self.dir = 'right'
         self.vel = vel
 
     def getDirection(self):
@@ -83,6 +90,9 @@ class GameObject(object):
 
     def getVelocity(self):
         return self.vel
+
+    def getAbsVelocity(self):
+        return self.vel.mag()
 
     def getBoundingPoly(self):
         return self.boundingpoly
@@ -106,6 +116,7 @@ class GameObject(object):
 
         #add p to v
         self.position = self.position + self.vel * dt
+        print 'pos', self.position
 
         if self.sprite is not None:
             self.sprite.update(dt)
