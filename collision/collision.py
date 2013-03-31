@@ -26,9 +26,9 @@ class BoundingPoly(object):
 
         return render.GLObject.rectFromPoints(unit.Unit.toPixels(topleft), unit.Unit.toPixels(botright), color)
 
-    def project(self, axis):
-        min_value = min([component.Vector(vertex).project(axis) for vertex in self.vertex_list])
-        max_value = max([component.Vector(vertex).project(axis) for vertex in self.vertex_list])
+    def scalar_project(self, axis):
+        min_value = min([component.Vector(vertex).scalar_project(axis) for vertex in self.vertex_list])
+        max_value = max([component.Vector(vertex).scalar_project(axis) for vertex in self.vertex_list])
         return [min_value, max_value]
 
     def offset(self, position):

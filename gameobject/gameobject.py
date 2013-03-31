@@ -1,7 +1,10 @@
 import component.component as component
 
 MAX_VEL = 10
-
+LOCK_X_NEGATIVE = 0
+LOCK_X_POSITIVE = 1
+LOCK_Y_NEGATIVE = 2
+LOCK_Y_POSITIVE = 3
 
 class GameObject(object):
     def __init__(self, **kwargs):
@@ -16,6 +19,12 @@ class GameObject(object):
         self.position = component.Position.zero() if 'position' not in kwargs else kwargs['position']
         self.sprite = None if 'sprite' not in kwargs else kwargs['sprite']
         self.size = None if 'size' not in kwargs else kwargs['size']
+
+        #movement vector locks
+        self.lock_x_negative = False
+        self.lock_x_positive = False
+        self.lock_y_negative = False
+        self.lock_y_positive = False
 
         self.showingBoundingPoly = False
 
@@ -73,11 +82,15 @@ class GameObject(object):
         pass
 
     def setVelocity(self, vel):
+        print 'setting velocity to', vel
         if vel.x < 0:
             self.dir = 'left'
         elif vel.x > 0:
             self.dir = 'right'
         self.vel = vel
+
+    def setAcceleration(self, acc):
+        self.acc = acc
 
     def getDirection(self):
         return self.dir
@@ -91,6 +104,9 @@ class GameObject(object):
     def getVelocity(self):
         return self.vel
 
+    def getAcceleration(self):
+        return self.acc
+
     def getAbsVelocity(self):
         return self.vel.mag()
 
@@ -103,20 +119,52 @@ class GameObject(object):
     def addVelocity(self, rel_vel):
         self.vel = self.vel + rel_vel
 
+    def lockMovement(self, direction):
+        if (direction == LOCK_X_NEGATIVE):
+            self.lock_x_negative = True
+        elif (direction == LOCK_X_POSITIVE):
+            self.lock_x_positive = True
+        elif (direction == LOCK_Y_NEGATIVE):
+            self.lock_y_negative = True
+        elif (direction == LOCK_X_POSITIVE):
+            self.lock_x_positive = True
+
+    def unlockMovement(self, direction):
+        if (direction == LOCK_X_NEGATIVE):
+            self.lock_x_negative = False
+        elif (direction == LOCK_X_POSITIVE):
+            self.lock_x_positive = False
+        elif (direction == LOCK_Y_NEGATIVE):
+            self.lock_y_negative = False
+        elif (direction == LOCK_X_POSITIVE):
+            self.lock_x_positive = False
+
+    def getSpeedAlongAxis(self, axis):
+        return self.getVelocity().scalar_project(axis)
+
     def setFlags(self, flag_data):
         #not sure why I put this in for this release.
         pass
 
     def update(self, dt):
         #add a to v
-        self.vel = self.vel + self.acc * dt
+        self.setVelocity(self.getVelocity() + self.acc * dt)
 
         #clamp v
         self.vel = max(self.vel, self.maxV)
 
+        #lock any vectors
+        if self.lock_x_negative:
+            self.vel.x = max(self.vel.x, 0)
+        if self.lock_x_positive:
+            self.vel.x = min(self.vel.x, 0)
+        if self.lock_y_negative:
+            self.vel.y = max(self.vel.y, 0)
+        if self.lock_y_positive:
+            self.vel.y = min(self.vel.y, 0)
+
         #add p to v
         self.position = self.position + self.vel * dt
-        print 'pos', self.position
 
         if self.sprite is not None:
             self.sprite.update(dt)
@@ -126,6 +174,8 @@ class GameObject(object):
 
         for ren in self.renderables:
             ren.updatePosition(self.position, self.vel)
+
+
 
 
 class ArgumentError(Exception):

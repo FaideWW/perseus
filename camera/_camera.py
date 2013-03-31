@@ -34,12 +34,12 @@ class Camera(GameObject):
 		super(Camera, self).update(dt)
 		if self.cam_target != None:
 			destination = self.cam_target.getWorldPosition()
-			print destination
+			print destination)
 		else:
 			destination = self.dest
 		self.moveToTarget(destination)
 
-		print self.camPos
+		print self.camPos)
 
 		self.dest = self.camPos
 

@@ -102,7 +102,7 @@ def on_draw():
 	
 	#draw projections
 	for axis in cm.getSeparatingAxes(bb2):
-		projection = separatingVector.project(axis)
+		projection = separatingVector.scalar_project(axis)
 		projectedVector = axis.normalize() * projection
 		#render.drawVector(projectedVector, floor.getWorldPosition(), [1.0,0,1.0,1.0])	
 

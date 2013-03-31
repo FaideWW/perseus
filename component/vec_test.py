@@ -109,7 +109,7 @@ v4 = v2.rot(90)
 print v1 + v2, v2 - v1, v1 * 2, v2 / 4
 print v1.normalize(), v2.normalize(), v3.normalize()
 print
-print v2.project(v3), v1.project(v2), v4.project(v2)
+print v2.project(v3), v1.project(v2), v4.scalar_project(v2)
 print
 print v1.dot(v2)
 print v1.cross(v2)

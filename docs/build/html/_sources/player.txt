@@ -87,7 +87,7 @@ The movement set of the player character is quite complex.  In order to keep eve
 
       Sets the movement state to *RUN*.
 
-   .. method:: sprint()
+   .. method:: sprint )
 
       If the current state is *RUN*, increases the speed of movement in the direction of motion by a factor.
 

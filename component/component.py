@@ -47,10 +47,16 @@ class Vector(list):
             return 0
         return self / mag
 
-    def project(self, axis):
+    def scalar_project(self, axis):
         unit_axis = axis.normalize()
         projection = self.dot(unit_axis)
         return projection
+
+    def vector_project(self, axis):
+        return axis * self.scalar_project(axis)
+
+    def vector_reject(self, axis):
+        return self - (axis * self.scalar_project(axis))
 
     def reflect(self, normal):
         normal *= 2

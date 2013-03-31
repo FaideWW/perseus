@@ -20,6 +20,7 @@ class Player(gameobject.GameObject):
         self.moving_left = False
         self.moving_right = False
         self.roll_timer = 0
+        
 
     def getMovementState(self):
         return self.movement_state

@@ -197,7 +197,7 @@ class CollisionManager:
 			projections = []
 			for vertex in bb1.getVertices():
 
-				projection_point = (vertex).project(axis)
+				projection_point = (vertex).scalar_project(axis)
 				projections.append(projection_point)
 			bb1_min = min(projections)
 			bb1_max = max(projections)
@@ -205,7 +205,7 @@ class CollisionManager:
 
 			projections = []
 			for vertex in bb2.getVertices():
-				projection_point = (vertex + origin2 - origin1).project(axis)
+				projection_point = (vertex + origin2 - origin1).scalar_project(axis)
 				projections.append(projection_point)
 				r.drawVector(axis.normalize() * projection_point, (origin1))
 			bb2_min = min(projections)

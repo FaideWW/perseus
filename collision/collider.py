@@ -1,10 +1,16 @@
+#force floating point division
+from __future__ import division
+
 import component.component as component
 import maps.map
-
+import component.unit as unit
 
 class Collider(object):
-    def __init__(self):
+    def __init__(self, tolerance):
         self.collision_queue = []
+        self.COLLISION_TOLERANCE = 1 / tolerance
+
+        print 'COLLISION_TOLERANCE', self.COLLISION_TOLERANCE
 
     def detectCollisions(self, objects, worldmap):
 
@@ -96,12 +102,16 @@ class Collider(object):
                 bp2 = collidee.getBoundingPoly().offset(collidee.getWorldSpacePosition())
                 #print bp1.positionToString(component.Position.zero())
                 #print bp2.positionToString(component.Position.zero())
-                projection1 = bp1.project(axis)
-                projection2 = bp2.project(axis)
+                projection1 = bp1.scalar_project(axis)
+                projection2 = bp2.scalar_project(axis)
 
                 if min(projection1) < max(projection2) and min(projection2) < max(projection1) or min(projection2) < max(projection1) and min(projection1) < max(projection2):
                     axis_depth = min(max(projection1) - min(projection2), max(projection2) - min(projection1))
+                    #round down below the tolerance threshold
+                    if axis_depth < self.COLLISION_TOLERANCE:
+                        axis_depth = 0
                     if collision_axis is None or collision_depth > axis_depth:
+                        print 'collision', axis, axis_depth
                         collision_axis = axis
                         collision_depth = axis_depth
                 else:
@@ -110,29 +120,31 @@ class Collider(object):
                     break
 
             if collisionExists:
-                print 'collision', collision_depth
-                #print match.obj1.getWorldSpacePosition(), match.obj1.getBoundingPoly().getVertices()
-                #print type(match.obj1), match.obj1.getBoundingPoly().positionToString(match.obj1.getWorldSpacePosition())
-                #print match.obj1.getBoundingPoly().project(collision_axis), max(match.obj1.getBoundingPoly().project(collision_axis))
-
-                #print match.obj2.getWorldSpacePosition(), match.obj2.getBoundingPoly().getVertices()
-                #print type(match.obj2), match.obj2.getBoundingPoly().positionToString(match.obj2.getWorldSpacePosition())
-                #print match.obj2.getBoundingPoly().project(collision_axis), max(match.obj1.getBoundingPoly().project(collision_axis))
                 #get the collision axis
                 match.axis = collision_axis
                 match.depth = collision_depth
                 collisions.append(match)
         return collisions
 
-    def resolveCollisions(self, collisions):
+    def resolveCollisions(self, collisions, dt):
+        collided = []
         for collision in collisions:
 
             obj1 = collision.obj1
             obj2 = collision.obj2
 
-            print obj1.getVelocity(), obj2.getVelocity()
-            interpolation = self.interpolateCollisionPosition(collision)
-            
+            # if obj1 in collided or obj2 in collided:
+            #     #if the object is exempt from collisions this round
+            #     continue
+            # else:
+            #     collided.append(obj1)
+            #     collided.append(obj2)
+
+            #get the interpolated v for this frame
+            actual_v1 = obj1.getVelocity() * dt
+            actual_v2 = obj2.getVelocity() * dt
+
+            #interpolation = self.interpolateCollisionPosition(collision)
             reaction1 = obj1.getCollider().collideWith(obj2.getCollider().getType())
             reaction2 = obj2.getCollider().collideWith(obj1.getCollider().getType())
 
@@ -142,8 +154,18 @@ class Collider(object):
                     obj.setVelocity((obj.getVelocity().reflect(collision.axis) * -1))
                 elif reaction is 'Stop':
                     #flushly align the bounding boxes along the axis of collision
-                    #...somehow
-                    obj.setVelocity(component.Velocity([0, obj.getVelocity().y]))
+                    #and flatten the velocity normal to the axis of collision
+                    #also flatten acceleration
+                    reverse = collision.axis * collision.depth
+                    #print 'reverse by', reverse
+                    obj.setPosition(obj.getWorldSpacePosition() + reverse)
+                    final_velocity = obj.getVelocity().vector_reject(collision.axis)
+                    final_acceleration = obj.getAcceleration().vector_reject(collision.axis)
+                    obj.lockMovement(2)
+                    #print 'vel1', obj.getVelocity()
+                    obj.setVelocity(final_velocity)
+                    obj.setAcceleration(final_acceleration)
+                    #print 'vel2', obj.getVelocity()
                     pass
                 elif reaction is 'StopAll':
                     obj.setVelocity(component.Velocity.zero())
@@ -169,7 +191,7 @@ class Collider(object):
         velocity = collision.obj1.getVelocity() if collision.obj1.getAbsVelocity() >= collision.obj2.getAbsVelocity() else collision.obj2.getVelocity()
         if velocity.mag() == 0:
             return 1
-        return 1 - (collision.depth / velocity.project(collision.axis))
+        return 1 - (collision.depth / velocity.scalar_project(collision.axis))
 
 
 class SpaceBlock(object):

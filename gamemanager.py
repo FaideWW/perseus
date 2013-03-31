@@ -25,7 +25,9 @@ r = render.Render()
 print window_res
 c = camera.Camera(component.Vector(window_res))
 r.setCamera(c)
-asset_path = '/'.join(sys.argv[0].rsplit('/')[:-1]) + 'assets/'
+file_path = '/'.join(sys.argv[0].split('/')[:-1])
+print file_path
+asset_path = '/'.join([file_path, 'assets/'])
 walk_sheet = asset_path + 'player/walk_sheet.png'
 walk_info = asset_path + 'player/walk_sheet.tile'
 map_sheet = asset_path + 'maps/map1.map'
@@ -70,7 +72,7 @@ m = maps.Map(map_sheet, map_tiles, map_info, component.Vector([1, 1]))
 r.addToBlit(m.mapAsSprite())
 print g.getRenderables()
 
-cd = collision.collider.Collider()
+cd = collision.collider.Collider(unit.Unit.ppu)
 
 objs = m.getTileList()
 for o in objs:
@@ -101,11 +103,17 @@ def on_key_press(symbol, modifiers):
 def on_key_release(symbol, modifiers):
     pc.keyUp(symbol)
 
+gravity = component.Velocity([0, -2])
 
 def update(dt):
-    g.update(dt)
+    #g.accelerate(gravity)
+    print 'initialv', g.getVelocity()
+    print 'initialp', g.getWorldSpacePosition()
     cd.detectCollisions(objs, m)
-    cd.resolveCollisions(cd.collision_queue)
+    cd.resolveCollisions(cd.collision_queue, dt)
+    g.update(dt)
+    print 'finalv', g.getVelocity()
+    print 'finalp', g.getWorldSpacePosition()
 
 pyglet.clock.schedule_interval(update, 1/60.0)
 pyglet.app.run()
