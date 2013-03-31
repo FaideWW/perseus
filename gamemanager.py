@@ -106,14 +106,10 @@ def on_key_release(symbol, modifiers):
 gravity = component.Velocity([0, -2])
 
 def update(dt):
-    #g.accelerate(gravity)
-    print 'initialv', g.getVelocity()
-    print 'initialp', g.getWorldSpacePosition()
+    g.accelerate(gravity)
     cd.detectCollisions(objs, m)
     cd.resolveCollisions(cd.collision_queue, dt)
     g.update(dt)
-    print 'finalv', g.getVelocity()
-    print 'finalp', g.getWorldSpacePosition()
 
 pyglet.clock.schedule_interval(update, 1/60.0)
 pyglet.app.run()

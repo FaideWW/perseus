@@ -95,7 +95,9 @@ class Collider(object):
             collision_depth = None
             collision_axis = None
 
-            for axis in collidee.getBoundingPoly().getAxes():
+            axes = collidee.getBoundingPoly().getAxes()
+            print axes
+            for axis in axes:
                 #print 'testing'
                 #print axis
                 bp1 = collider.getBoundingPoly().offset(collider.getWorldSpacePosition())
@@ -111,7 +113,7 @@ class Collider(object):
                     if axis_depth < self.COLLISION_TOLERANCE:
                         axis_depth = 0
                     if collision_axis is None or collision_depth > axis_depth:
-                        print 'collision', axis, axis_depth
+                        #get the most relevant axes preserving directionality
                         collision_axis = axis
                         collision_depth = axis_depth
                 else:
@@ -149,6 +151,7 @@ class Collider(object):
             reaction2 = obj2.getCollider().collideWith(obj1.getCollider().getType())
 
             for reaction, obj in zip([reaction1, reaction2], [obj1, obj2]):
+                other = obj1 if obj is not obj1 else obj2
                 if reaction is 'Bounce':
                     #reflect the velocity along the normal then reverse it
                     obj.setVelocity((obj.getVelocity().reflect(collision.axis) * -1))
@@ -156,9 +159,21 @@ class Collider(object):
                     #flushly align the bounding boxes along the axis of collision
                     #and flatten the velocity normal to the axis of collision
                     #also flatten acceleration
+
+                    #get proper directionality for collision axis
+
                     reverse = collision.axis * collision.depth
+
+                    separation_vector = obj.getWorldSpacePosition() - other.getWorldSpacePosition()
+                    print 'reverse', reverse
+                    print 'sp', separation_vector, separation_vector.dot(reverse)
+                    if separation_vector.dot(reverse) > 0:
+                        #flip the axis
+                        reverse *= -1
+
+                    print 'move by', reverse
                     #print 'reverse by', reverse
-                    obj.setPosition(obj.getWorldSpacePosition() + reverse)
+                    obj.setPosition(obj.getWorldSpacePosition() - reverse)
                     final_velocity = obj.getVelocity().vector_reject(collision.axis)
                     final_acceleration = obj.getAcceleration().vector_reject(collision.axis)
                     obj.lockMovement(2)
