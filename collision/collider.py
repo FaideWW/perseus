@@ -96,24 +96,22 @@ class Collider(object):
             collision_axis = None
 
             axes = collidee.getBoundingPoly().getAxes()
-            print axes
             for axis in axes:
-                #print 'testing'
-                #print axis
-                bp1 = collider.getBoundingPoly().offset(collider.getWorldSpacePosition())
-                bp2 = collidee.getBoundingPoly().offset(collidee.getWorldSpacePosition())
-                #print bp1.positionToString(component.Position.zero())
-                #print bp2.positionToString(component.Position.zero())
-                projection1 = bp1.scalar_project(axis)
-                projection2 = bp2.scalar_project(axis)
+                # #print 'testing'
+                # #print axis
+                # bp1 = collider.getBoundingPoly().offset(collider.getWorldSpacePosition())
+                # bp2 = collidee.getBoundingPoly().offset(collidee.getWorldSpacePosition())
+                # #print bp1.positionToString(component.Position.zero())
+                # #print bp2.positionToString(component.Position.zero())
+                # projection1 = bp1.scalar_project(axis)
+                # projection2 = bp2.scalar_project(axis)
 
-                if min(projection1) < max(projection2) and min(projection2) < max(projection1) or min(projection2) < max(projection1) and min(projection1) < max(projection2):
-                    axis_depth = min(max(projection1) - min(projection2), max(projection2) - min(projection1))
-                    #round down below the tolerance threshold
+                axis_depth = self._getIntersectionDepth(collider, collidee, axis)
+
+                if axis_depth > 0:
                     if axis_depth < self.COLLISION_TOLERANCE:
                         axis_depth = 0
                     if collision_axis is None or collision_depth > axis_depth:
-                        #get the most relevant axes preserving directionality
                         collision_axis = axis
                         collision_depth = axis_depth
                 else:
@@ -128,19 +126,25 @@ class Collider(object):
                 collisions.append(match)
         return collisions
 
+    def _getIntersectionDepth(self, obj1, obj2, axis):
+        """ Return the exact depth of the intersection between two projections """
+        bp1 = obj1.getBoundingPoly().offset(obj1.getWorldSpacePosition())
+        bp2 = obj2.getBoundingPoly().offset(obj2.getWorldSpacePosition())
+        projection1 = bp1.scalar_project(axis)
+        projection2 = bp2.scalar_project(axis)
+        return min(max(projection1) - min(projection2), max(projection2) - min(projection1))
+
     def resolveCollisions(self, collisions, dt):
         collided = []
         for collision in collisions:
 
+
+
             obj1 = collision.obj1
             obj2 = collision.obj2
+            #refresh collision depth
 
-            # if obj1 in collided or obj2 in collided:
-            #     #if the object is exempt from collisions this round
-            #     continue
-            # else:
-            #     collided.append(obj1)
-            #     collided.append(obj2)
+            collision.depth = self._getIntersectionDepth(obj1, obj2, collision.axis)
 
             #get the interpolated v for this frame
             actual_v1 = obj1.getVelocity() * dt
@@ -151,6 +155,10 @@ class Collider(object):
             reaction2 = obj2.getCollider().collideWith(obj1.getCollider().getType())
 
             for reaction, obj in zip([reaction1, reaction2], [obj1, obj2]):
+
+                if hasattr(obj, 'jumping') and obj.jumping:
+                    continue
+
                 other = obj1 if obj is not obj1 else obj2
                 if reaction is 'Bounce':
                     #reflect the velocity along the normal then reverse it
@@ -160,26 +168,20 @@ class Collider(object):
                     #and flatten the velocity normal to the axis of collision
                     #also flatten acceleration
 
-                    #get proper directionality for collision axis
+                    if collision.depth > 0:
+                        reverse = collision.axis * collision.depth
+                        #get proper directionality for collision axis
+                        separation_vector = obj.getWorldSpacePosition() - other.getWorldSpacePosition()
+                        if separation_vector.dot(reverse) > 0:
+                            #flip the axis
+                            reverse *= -1
+                        obj.setPosition(obj.getWorldSpacePosition() - reverse)
+                        final_velocity = obj.getVelocity().vector_reject(collision.axis)
+                        final_acceleration = obj.getAcceleration().vector_reject(collision.axis)
 
-                    reverse = collision.axis * collision.depth
-
-                    separation_vector = obj.getWorldSpacePosition() - other.getWorldSpacePosition()
-                    print 'reverse', reverse
-                    print 'sp', separation_vector, separation_vector.dot(reverse)
-                    if separation_vector.dot(reverse) > 0:
-                        #flip the axis
-                        reverse *= -1
-
-                    print 'move by', reverse
-                    #print 'reverse by', reverse
-                    obj.setPosition(obj.getWorldSpacePosition() - reverse)
-                    final_velocity = obj.getVelocity().vector_reject(collision.axis)
-                    final_acceleration = obj.getAcceleration().vector_reject(collision.axis)
-                    obj.lockMovement(2)
-                    #print 'vel1', obj.getVelocity()
-                    obj.setVelocity(final_velocity)
-                    obj.setAcceleration(final_acceleration)
+                        #print 'vel1', obj.getVelocity()
+                        obj.setVelocity(final_velocity)
+                        obj.setAcceleration(final_acceleration)
                     #print 'vel2', obj.getVelocity()
                     pass
                 elif reaction is 'StopAll':

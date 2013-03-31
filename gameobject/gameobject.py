@@ -21,10 +21,7 @@ class GameObject(object):
         self.size = None if 'size' not in kwargs else kwargs['size']
 
         #movement vector locks
-        self.lock_x_negative = False
-        self.lock_x_positive = False
-        self.lock_y_negative = False
-        self.lock_y_positive = False
+        self.locked_directions = [False for i in xrange(4)]
 
         self.showingBoundingPoly = False
 
@@ -82,7 +79,8 @@ class GameObject(object):
         pass
 
     def setVelocity(self, vel):
-        print 'setting velocity to', vel
+        if vel != self.vel:
+            print 'setting velocity to', vel
         if vel.x < 0:
             self.dir = 'left'
         elif vel.x > 0:
@@ -120,24 +118,18 @@ class GameObject(object):
         self.vel = self.vel + rel_vel
 
     def lockMovement(self, direction):
-        if (direction == LOCK_X_NEGATIVE):
-            self.lock_x_negative = True
-        elif (direction == LOCK_X_POSITIVE):
-            self.lock_x_positive = True
-        elif (direction == LOCK_Y_NEGATIVE):
-            self.lock_y_negative = True
-        elif (direction == LOCK_X_POSITIVE):
-            self.lock_x_positive = True
+        self.locked_directions[direction] = True
 
     def unlockMovement(self, direction):
-        if (direction == LOCK_X_NEGATIVE):
-            self.lock_x_negative = False
-        elif (direction == LOCK_X_POSITIVE):
-            self.lock_x_positive = False
-        elif (direction == LOCK_Y_NEGATIVE):
-            self.lock_y_negative = False
-        elif (direction == LOCK_X_POSITIVE):
-            self.lock_x_positive = False
+        self.locked_directions[direction] = False
+
+    def vectorIsLocked(self, direction):
+        """ returns True if movement is restricted, False otherwise """
+        return self.locked_directions
+
+    def unlockAllMovement(self):
+        for i in xrange(4):
+            self.unlockMovement(i)
 
     def getSpeedAlongAxis(self, axis):
         return self.getVelocity().scalar_project(axis)
@@ -154,13 +146,13 @@ class GameObject(object):
         self.vel = max(self.vel, self.maxV)
 
         #lock any vectors
-        if self.lock_x_negative:
+        if self.locked_directions[LOCK_X_NEGATIVE]:
             self.vel.x = max(self.vel.x, 0)
-        if self.lock_x_positive:
+        if self.locked_directions[LOCK_X_POSITIVE]:
             self.vel.x = min(self.vel.x, 0)
-        if self.lock_y_negative:
+        if self.locked_directions[LOCK_Y_NEGATIVE]:
             self.vel.y = max(self.vel.y, 0)
-        if self.lock_y_positive:
+        if self.locked_directions[LOCK_Y_POSITIVE]:
             self.vel.y = min(self.vel.y, 0)
 
         #add p to v
@@ -175,7 +167,7 @@ class GameObject(object):
         for ren in self.renderables:
             ren.updatePosition(self.position, self.vel)
 
-
+        self.unlockAllMovement()
 
 
 class ArgumentError(Exception):

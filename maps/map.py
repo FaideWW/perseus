@@ -14,7 +14,7 @@ class Map(object):
         self.spawn = None
         self.num_tiles = 0
         self.map = self._genMap(self.mapdata, self.tiles)
-        #self.weldTileVertices(self.map)
+        self.boundingpoly = self._weldTileVertices(self.map)
 
     def _readMapFile(self, map_file):
         map_array = []
@@ -72,14 +72,14 @@ class Map(object):
         map_height = len(mapdata) - 1
 
         for y in range(len(mapdata)):
-            map_array[y] = [None] * len(mapdata[y])
+            map_array[y] = [None for i in enumerate(mapdata[y])]
             for x in range(len(mapdata[y])):
                 tilesprite = None
                 bp = None
                 if mapdata[y][x] in tiledata:
                     tilesprite = tiledata[mapdata[y][x]]
                     bp = collision.BoundingPoly([bp_tl, bp_tr, bp_br, bp_bl])
-                map_array[y][x] = Tile(ident, component.Vector([x + offset_x, (map_height - y) + offset_y]), mapdata[y][x], tilesprite, bp, size=self.t_size, collider=collision.StaticCollidable())
+                map_array[y][x] = Tile(ident, component.Vector([x + offset_x, (map_height - y) + offset_y]), component.Vector([x, y]), mapdata[y][x], tilesprite, bp, size=self.t_size, collider=collision.StaticCollidable())
                 ident += 1
 
         self.num_tiles = ident
@@ -94,7 +94,7 @@ class Map(object):
                     if map_array[y+1][x] is not None:
                         edges.append(Tile.EDGE_SOLID)
                     else:
-                        edges.append(Tile.EDGE_NONE)
+                        edges.append(Tile.EDGE_NONE)    
                 except IndexError:
                     #if we're on the outside of the map, give the tiles a solid edge
                     edges.append(Tile.EDGE_SOLID)
@@ -129,63 +129,6 @@ class Map(object):
                 tile.setEdgeData(edges)
 
         return map_array
-
-    def weldTileVertices(self, tilemap):
-        """
-            Finds tiles that share an edge and removes the edge from collision detection.
-
-            This is incredibly broken atm, and I might take it out altogether
-        """
-        for row in range(len(tilemap)):
-            for col in range(len(tilemap[row])):
-                tile = tilemap[row][col]
-                neighbors = self.getNeighbors(component.Vector([col, row]))
-
-                for side in range(len(neighbors)):
-                    neighbor = neighbors[side]
-                    if neighbor is None:
-                        continue
-                    #set the neighboring side to opposite the tile's side
-                    #NOTE: this only works for axis aligned quadrilaterals
-                    #      (aka tiles) so don't try this for actual bounding polygons
-                    neighbor_side = (side + 2) % 4
-                    if tile.getEdgeData()[side] == Tile.EDGE_SOLID and neighbor.getEdgeData()[neighbor_side] == Tile.EDGE_SOLID:
-                        #if the tile and its neighbor share a solid edge, dsiable them both
-                        if tile.getBoundingPoly() is not None:
-                            tile.getBoundingPoly().disableSide(side)
-                        if neighbor.getBoundingPoly() is not None:
-                            neighbor.getBoundingPoly().disableSide(neighbor_side)
-
-                #this needs to be thought out
-
-    def getNeighbors(self, tile_index):
-        """
-            returns a list of neighboring tiles given a Pair with the row and column
-        """
-        row = tile_index.x
-        col = tile_index.y
-        up, down, left, right = [True] * 4
-        if row <= 0:
-            up = False
-        if row >= len(self.map) - 1:
-            down = False
-        if col == 0:
-            left = False
-        if up and down and col >= len(self.map[row]) - 1:
-            right = False
-
-        neighbor_list = []
-
-        #up neighbor
-        neighbor_list.append(None if not up else self.map[row-1][col])
-        #right neighbor
-        neighbor_list.append(None if not right else self.map[row][col+1])
-        #down neighbor
-        neighbor_list.append(None if not down else self.map[row+1][col])
-        #left neighbor
-        neighbor_list.append(None if not left else self.map[row][col-1])
-
-        return neighbor_list
 
     def getTile(self, data):
         if isinstance(data, component.Position):
@@ -239,6 +182,34 @@ class Map(object):
     def getMapSize(self):
         return component.Vector([max([len(x) for x in self.map]), len(self.map)])
 
+    def _weldTileVertices(self, tilemap):
+        """
+            Takes a map of tiles and disables shared tile edges in collision
+        """
+
+        #flatten the map for easier iteration
+
+        tile_list = (tile for row in tilemap for tile in row)
+
+        for tile in tile_list:
+            #find neighbors
+            if tile.getBoundingPoly() is None:
+                continue
+            #right neighbor
+            if tile.index.x < len(tilemap[tile.index.y])-1 and tilemap[tile.index.y][tile.index.x+1].getBoundingPoly() is not None:
+                tile.getBoundingPoly().disableSide(1)
+            #down neighbor
+            if tile.index.y > 0 and tilemap[tile.index.y-1][tile.index.x].getBoundingPoly() is not None:
+                tile.getBoundingPoly().disableSide(0)
+            #left neighbor
+            if tile.index.x > 0 and tilemap[tile.index.y][tile.index.x-1].getBoundingPoly() is not None:
+                tile.getBoundingPoly().disableSide(3)
+            #up neighbor
+            if tile.index.y < len(tilemap)-1 and tilemap[tile.index.y+1][tile.index.x].getBoundingPoly() is not None:
+                tile.getBoundingPoly().disableSide(2)
+
+        print tilemap is tile_list
+
     def __str__(self):
         return str(self.map)
 
@@ -250,9 +221,11 @@ class Tile(gameobject.GameObject):
     EDGE_SOLID = 1
     EDGE_INTERESTING = 2
 
-    def __init__(self, tileid, position, tiletype, sprite=None, boundingpoly=None, **kwargs):
+    def __init__(self, tileid, position, index, tiletype, sprite=None, boundingpoly=None, **kwargs):
         self.id = tileid
         self.type = tiletype
+        self.index = index
+        print index
         kwargs['position'] = position
         kwargs['id'] = 'map' + str(tileid)
         kwargs['sprite'] = sprite

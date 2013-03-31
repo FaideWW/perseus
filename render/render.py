@@ -182,10 +182,23 @@ class GLObject(object):
             self.vertex_list = self.vertex_list + ('t2f', tuple([tuple(pair) for pair in tex_data]))
 
     @staticmethod
-    def rectFromPoints(topleft, bottomright, color=None):
+    def rectFromPoints(topleft, bottomright, mask, color=None):
+        vertex_list = []
+        if mask[0]:
+            vertex_list.append([topleft.x, topleft.y])
+            vertex_list.append([bottomright.x, topleft.y])
+        if mask[1]:
+            vertex_list.append([bottomright.x, topleft.y])
+            vertex_list.append([bottomright.x, bottomright.y])
+        if mask[2]:
+            vertex_list.append([bottomright.x, bottomright.y])
+            vertex_list.append([topleft.x, bottomright.y])
+        if mask[3]:
+            vertex_list.append([topleft.x, bottomright.y])
+            vertex_list.append([topleft.x, topleft.y])
         return GLObject(
             pyglet.gl.GL_LINES,
-            [[topleft.x, topleft.y], [bottomright.x, topleft.y], [bottomright.x, topleft.y], [bottomright.x, bottomright.y], [bottomright.x, bottomright.y], [topleft.x, bottomright.y], [topleft.x, bottomright.y], [topleft.x, topleft.y]],
+            vertex_list,
             [],
             color,
         )

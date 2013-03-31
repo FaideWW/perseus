@@ -106,6 +106,7 @@ def on_key_release(symbol, modifiers):
 gravity = component.Velocity([0, -2])
 
 def update(dt):
+    
     g.accelerate(gravity)
     cd.detectCollisions(objs, m)
     cd.resolveCollisions(cd.collision_queue, dt)

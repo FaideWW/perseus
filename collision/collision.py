@@ -7,6 +7,7 @@ class BoundingPoly(object):
     def __init__(self, vertices):
         self.vertex_list = vertices
         self.normal_list = self._genNormalVectors(self.vertex_list)
+        #sides wind anticlockwise from down (down, right, up, left)
         self.sides = [True for x in enumerate(self.normal_list)]
 
     def _genNormalVectors(self, vertices):
@@ -18,13 +19,14 @@ class BoundingPoly(object):
         return self.vertex_list
 
     def getAxes(self):
+        print self.normal_list
         return [axis for axis, mask in zip(self.normal_list, self.sides) if mask]
 
     def generateGLObject(self, color):
         topleft = component.Vector([float(min([point[0] for point in self.vertex_list])), float(max([point[1] for point in self.vertex_list]))])
         botright = component.Vector([float(max([point[0] for point in self.vertex_list])), float(min([point[1] for point in self.vertex_list]))])
 
-        return render.GLObject.rectFromPoints(unit.Unit.toPixels(topleft), unit.Unit.toPixels(botright), color)
+        return render.GLObject.rectFromPoints(unit.Unit.toPixels(topleft), unit.Unit.toPixels(botright), self.sides, color)
 
     def scalar_project(self, axis):
         min_value = min([component.Vector(vertex).scalar_project(axis) for vertex in self.vertex_list])
