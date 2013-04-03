@@ -1,5 +1,6 @@
 from vector import Vector
 
+
 class Coordinate(Vector):
 	"""Base class for a triplet of integer values"""
 

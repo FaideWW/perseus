@@ -28,19 +28,28 @@ r.setCamera(c)
 file_path = '/'.join(sys.argv[0].split('/')[:-1])
 print file_path
 asset_path = '/'.join([file_path, 'assets/'])
+asset_path2 = ''.join([file_path, 'assets/'])
 walk_sheet = asset_path + 'player/walk_sheet.png'
 walk_info = asset_path + 'player/walk_sheet.tile'
-map_sheet = asset_path + 'maps/map1.map'
 
 #obviously this only contains one tile
-map_tiles = asset_path + 'png/block.png'
-
-map_info = asset_path + 'maps/map1.td'
 
 player_size = unit.Unit.toUnits(component.Vector([72, 93]))
 
 print 'psize', player_size
-a = animation.Animation(walk_sheet, walk_info, 20)
+try:
+    a = animation.Animation(walk_sheet, walk_info, 20)
+except IOError, e:
+    asset_path = asset_path2
+    walk_sheet = asset_path + 'player/walk_sheet.png'
+    walk_info = asset_path + 'player/walk_sheet.tile'
+    a = animation.Animation(walk_sheet, walk_info, 20)
+
+map_sheet = asset_path + 'maps/map1.map'
+map_tiles = asset_path + 'png/block.png'
+map_info = asset_path + 'maps/map1.td'
+print walk_sheet, walk_info, map_sheet
+
 b = collision.collision.BoundingPoly.fromSize(player_size / 2)
 o = player_size / 2
 p = component.Position([2, 2])
@@ -78,6 +87,8 @@ objs = m.getTileList()
 for o in objs:
     o.showBoundingPoly(r)
 objs.append(g)
+last_frame = 0
+
 
 @window.event
 def on_draw():
@@ -94,6 +105,7 @@ def on_draw():
 
     fps.draw()
 
+
 @window.event
 def on_key_press(symbol, modifiers):
     pc.keyDown(symbol)
@@ -105,11 +117,14 @@ def on_key_release(symbol, modifiers):
 
 gravity = component.Velocity([0, -2])
 
+key_state = pyglet.window.key.KeyStateHandler()
+window.push_handlers(key_state)
+
 def update(dt):
-    
     g.accelerate(gravity)
     cd.detectCollisions(objs, m)
     cd.resolveCollisions(cd.collision_queue, dt)
+    pc.update(dt, key_state)
     g.update(dt)
 
 pyglet.clock.schedule_interval(update, 1/60.0)

@@ -1,7 +1,5 @@
-from pyglet.window import key
-
-
 class PlayerController(object):
+
     def __init__(self, player):
         self.player = player
         self.keymap = {
@@ -10,13 +8,27 @@ class PlayerController(object):
             '65364': 'down',
             '65362': 'up'
         }
-        self.pressed_keys = []
         self.function_table = {
             'left': 'left',
             'right': 'right',
             'up': 'up',
             'down': 'down',
         }
+
+        """
+            key bindings
+
+            we need two separate mappings here: one for instant 'one-off'
+            bindings (jump, fire, etc) and another for continuous bindings
+            (run, crouch, etc)
+
+        """
+        self.instant_mapping = {}
+        self.instant_mapping['up'] = self.up
+
+        self.continuous_mapping = {}
+        self.continuous_mapping['left'] = self.left
+        self.continuous_mapping['right'] = self.right
 
     def bindKeys(self, key_config):
         """
@@ -26,23 +38,32 @@ class PlayerController(object):
         """
 
     def keyDown(self, key):
-        if str(key) in self.keymap:
-            getattr(PlayerController, self.function_table[self.keymap[str(key)]])(self, True)
-        self.pressed_keys.append(key)
+        mapped_key = self.keymap[str(key)]
+        if mapped_key in self.instant_mapping:
+            self.instant_mapping[mapped_key]()
 
     def keyUp(self, key):
-        if str(key) in self.keymap and self.keymap[str(key)] in self.function_table:
-            getattr(PlayerController, self.function_table[self.keymap[str(key)]])(self, False)
-        self.pressed_keys.remove(key)
+        pass
 
-    def left(self, pressed):
-        self.player.left(pressed)
+    def left(self):
+        self.player.left()
 
-    def right(self, pressed):
-        self.player.right(pressed)
+    def right(self):
+        self.player.right()
 
-    def up(self, pressed):
-        self.player.up(pressed)
+    def up(self):
+        self.player.up()
 
-    def down(self, pressed):
-        self.player.down(pressed)
+    def down(self):
+        self.player.down()
+
+    def update(self, dt, key_state):
+        #throw updates for all keys that need them
+        for keypress in key_state.items():
+            print keypress
+            if keypress[1] is True:
+                print 'true'
+                if str(keypress[0]) in self.keymap:
+                    mapped_key = self.keymap[str(keypress[0])]
+                    if mapped_key in self.continuous_mapping:
+                        self.continuous_mapping[mapped_key]()

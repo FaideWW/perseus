@@ -19,7 +19,6 @@ class BoundingPoly(object):
         return self.vertex_list
 
     def getAxes(self):
-        print self.normal_list
         return [axis for axis, mask in zip(self.normal_list, self.sides) if mask]
 
     def generateGLObject(self, color):
