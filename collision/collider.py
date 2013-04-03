@@ -3,7 +3,7 @@ from __future__ import division
 
 import component.component as component
 import maps.map
-import component.unit as unit
+
 
 class Collider(object):
     def __init__(self, tolerance):
@@ -12,12 +12,12 @@ class Collider(object):
 
         print 'COLLISION_TOLERANCE', self.COLLISION_TOLERANCE
 
-    def detectCollisions(self, objects, worldmap):
+    def detectCollisions(self, objects, worldmap, dt):
 
-        possibles = self._broadPhase(objects, worldmap)
-        self.collision_queue = self._narrowPhase(possibles)
+        possibles = self._broadPhase(objects, worldmap, dt)
+        self.collision_queue = self._narrowPhase(possibles, dt)
 
-    def _broadPhase(self, objects, worldmap):
+    def _broadPhase(self, objects, worldmap, dt):
         """
             Takes a list of all objects, and returns a list of possible object collision points
         """
@@ -34,9 +34,11 @@ class Collider(object):
         block_size = worldmap.getTileSize()
 
         for obj in objects:
+            #predict next step by adding the current velocity to each object
+            obj_position = obj.getWorldSpacePosition() + obj.getVelocity() * dt
             if obj.getBoundingPoly() is None:
                 continue
-            bp = obj.getBoundingPoly().offset(obj.getWorldSpacePosition())
+            bp = obj.getBoundingPoly().offset(obj_position)
 
             minx = min([pos.x for pos in bp.getVertices()])
             maxx = max([pos.x for pos in bp.getVertices()])
@@ -85,7 +87,7 @@ class Collider(object):
                     obj_pairs.append(ObjectCollision(block.objects[i], block.objects[j]))
         return obj_pairs
 
-    def _narrowPhase(self, possibles):
+    def _narrowPhase(self, possibles, dt):
         collisions = []
         for match in possibles:
             collider = match.obj1 if match.obj1.getVelocity().mag() > match.obj1.getVelocity().mag() else match.obj2
@@ -106,7 +108,7 @@ class Collider(object):
                 # projection1 = bp1.scalar_project(axis)
                 # projection2 = bp2.scalar_project(axis)
 
-                axis_depth = self._getIntersectionDepth(collider, collidee, axis)
+                axis_depth = self._getIntersectionDepth(collider, collidee, axis, dt)
 
                 if axis_depth > 0:
                     if axis_depth < self.COLLISION_TOLERANCE:
@@ -126,40 +128,49 @@ class Collider(object):
                 collisions.append(match)
         return collisions
 
-    def _getIntersectionDepth(self, obj1, obj2, axis):
+    def _getIntersectionDepth(self, obj1, obj2, axis, dt):
         """ Return the exact depth of the intersection between two projections """
-        bp1 = obj1.getBoundingPoly().offset(obj1.getWorldSpacePosition())
-        bp2 = obj2.getBoundingPoly().offset(obj2.getWorldSpacePosition())
+        pos1 = obj1.getWorldSpacePosition() + obj1.getVelocity() * dt
+        pos2 = obj2.getWorldSpacePosition() + obj2.getVelocity() * dt
+        bp1 = obj1.getBoundingPoly().offset(pos1)
+        bp2 = obj2.getBoundingPoly().offset(pos2)
         projection1 = bp1.scalar_project(axis)
         projection2 = bp2.scalar_project(axis)
         return min(max(projection1) - min(projection2), max(projection2) - min(projection1))
 
     def resolveCollisions(self, collisions, dt):
-        collided = []
         for collision in collisions:
-
-
-
             obj1 = collision.obj1
             obj2 = collision.obj2
             #refresh collision depth
 
-            collision.depth = self._getIntersectionDepth(obj1, obj2, collision.axis)
 
+            collision.depth = self._getIntersectionDepth(obj1, obj2, collision.axis, dt)
+            if collision.depth < self.COLLISION_TOLERANCE:
+                #not a real collision
+                continue
             #get the interpolated v for this frame
-            actual_v1 = obj1.getVelocity() * dt
-            actual_v2 = obj2.getVelocity() * dt
 
             #interpolation = self.interpolateCollisionPosition(collision)
             reaction1 = obj1.getCollider().collideWith(obj2.getCollider().getType())
             reaction2 = obj2.getCollider().collideWith(obj1.getCollider().getType())
 
             for reaction, obj in zip([reaction1, reaction2], [obj1, obj2]):
-
                 if hasattr(obj, 'jumping') and obj.jumping:
                     continue
 
                 other = obj1 if obj is not obj1 else obj2
+
+                pos = obj.getWorldSpacePosition() + obj.getVelocity() * dt
+                pos_other = other.getWorldSpacePosition() + other.getVelocity() * dt
+
+                #landing hack
+                if hasattr(obj, 'landed'):
+                    lateral_vector = component.Vector([1, 0])
+                    if collision.axis.dot(lateral_vector) == 0 and pos.y > pos_other.y:
+                        #if the collision is vertical and the entity is above its collider
+                        obj.landed = True
+
                 if reaction is 'Bounce':
                     #reflect the velocity along the normal then reverse it
                     obj.setVelocity((obj.getVelocity().reflect(collision.axis) * -1))
@@ -171,11 +182,11 @@ class Collider(object):
                     if collision.depth > 0:
                         reverse = collision.axis * collision.depth
                         #get proper directionality for collision axis
-                        separation_vector = obj.getWorldSpacePosition() - other.getWorldSpacePosition()
+                        separation_vector = pos - pos_other
                         if separation_vector.dot(reverse) > 0:
                             #flip the axis
                             reverse *= -1
-                        obj.setPosition(obj.getWorldSpacePosition() - reverse)
+                        obj.setPosition(pos - reverse)
                         final_velocity = obj.getVelocity().vector_reject(collision.axis)
                         final_acceleration = obj.getAcceleration().vector_reject(collision.axis)
 

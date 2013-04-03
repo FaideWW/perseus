@@ -21,29 +21,29 @@ class Player(gameobject.GameObject):
         self.moving_right = False
         self.jumping = False
         self.roll_timer = 0
-        
 
     def getMovementState(self):
         return self.movement_state
 
     def checkState(self):
         #state checks
+        print 'land', self.landed
         if self.vel == component.Velocity.zero():
             self.setState('IDLE')
             self.moving_left = False
             self.moving_right = False
-        if not self.landed and (self.movement_state is not 'AIRONE' or self.movement_state is not 'AIRTWO'):
+        elif not self.landed and (self.movement_state is not 'AIRONE' or self.movement_state is not 'AIRTWO'):
             self.setState('AIRONE')
-        if self.movement_state is 'AIRONE' or self.movement_state is 'AIRTWO' and self.landed and self.vel.y != 0:
+        elif (self.movement_state is 'AIRONE' or self.movement_state is 'AIRTWO') and self.landed and self.vel.y != 0:
             self.setState('LAND')
-            self.landed = True 
+            self.landed = True
             self.roll_timer = 0
-        if self.movement_state is 'LAND' and self.roll_timer > ROLL_TIMER:
+        elif self.movement_state is 'LAND' and self.roll_timer > ROLL_TIMER:
             if self.vel.x > 0:
                 self.movment_state = 'RUN'
             else:
                 self.setState('IDLE')
-        if self.movement_state is 'ROLL' and self.roll_timer > ROLL_TIMER:
+        elif self.movement_state is 'ROLL' and self.roll_timer > ROLL_TIMER:
             if self.landed:
                 if self.vel.x > 0:
                     self.setState('RUN')
@@ -92,7 +92,7 @@ class Player(gameobject.GameObject):
             self.landed = False
             self.setVelocity(component.Velocity([self.getVelocity().x, PLAYER_Y_JUMP]))
             self.setState('AIRONE')
-        elif self.movement_state is 'ROLL':
+        elif self.landed and self.movement_state is 'ROLL':
             self.landed = False
             self.setVelocity(component.Velocity([self.getVelocity().x, PLAYER_Y_ROLLJUMP]))
             self.setState('AIRONE')
@@ -112,6 +112,7 @@ class Player(gameobject.GameObject):
 
     def resetState(self):
         #reset all flags for a given cycle
+        self.jumping = False
 
         #reset lateral movement
         v = component.Velocity([0, self.getVelocity().y])
@@ -125,10 +126,7 @@ class Player(gameobject.GameObject):
         """
         super(Player, self).update(dt)
 
-        print 'player update'
-
         self.checkState()
-
         if self.movement_state is 'LAND' or self.movement_state is 'ROLL':
             self.roll_timer = self.roll_timer + dt
 

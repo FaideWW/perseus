@@ -60,9 +60,7 @@ class PlayerController(object):
     def update(self, dt, key_state):
         #throw updates for all keys that need them
         for keypress in key_state.items():
-            print keypress
             if keypress[1] is True:
-                print 'true'
                 if str(keypress[0]) in self.keymap:
                     mapped_key = self.keymap[str(keypress[0])]
                     if mapped_key in self.continuous_mapping:

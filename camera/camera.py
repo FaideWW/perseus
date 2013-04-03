@@ -1,7 +1,9 @@
 import gameobject.gameobject as gameobject
 
+
 class Camera(gameobject.GameObject):
-    def __init__(self, viewport, target=None):
+    def __init__(self, viewport, target=None, **kwargs):
+        super(Camera, self).__init__(**kwargs)
         self.viewport = viewport
         self.dest_viewport = None
         self.target = target

@@ -6,6 +6,7 @@ LOCK_X_POSITIVE = 1
 LOCK_Y_NEGATIVE = 2
 LOCK_Y_POSITIVE = 3
 
+
 class GameObject(object):
     def __init__(self, **kwargs):
         if 'id' in kwargs:
@@ -79,8 +80,8 @@ class GameObject(object):
         pass
 
     def setVelocity(self, vel):
-        if vel != self.vel:
-            print 'setting velocity to', vel
+        #if self.vel != vel:
+        #    print 'setting v to', vel
         if vel.x < 0:
             self.dir = 'left'
         elif vel.x > 0:
@@ -94,6 +95,8 @@ class GameObject(object):
         return self.dir
 
     def setPosition(self, pos):
+        #if self.position != pos:
+        #    print 'setting position to', pos
         self.position = pos
 
     def getWorldSpacePosition(self):
@@ -154,6 +157,8 @@ class GameObject(object):
             self.vel.y = max(self.vel.y, 0)
         if self.locked_directions[LOCK_Y_POSITIVE]:
             self.vel.y = min(self.vel.y, 0)
+
+        #print 'timestep v', self.vel * dt
 
         #add p to v
         self.position = self.position + self.vel * dt

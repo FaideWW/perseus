@@ -23,7 +23,7 @@ fps = pyglet.clock.ClockDisplay()
 last_frame = pyglet.clock.tick()
 r = render.Render()
 print window_res
-c = camera.Camera(component.Vector(window_res))
+c = camera.Camera(component.Vector(window_res), id='cam1')
 r.setCamera(c)
 file_path = '/'.join(sys.argv[0].split('/')[:-1])
 print file_path
@@ -120,11 +120,15 @@ gravity = component.Velocity([0, -2])
 key_state = pyglet.window.key.KeyStateHandler()
 window.push_handlers(key_state)
 
+
 def update(dt):
-    g.accelerate(gravity)
-    cd.detectCollisions(objs, m)
-    cd.resolveCollisions(cd.collision_queue, dt)
+
     pc.update(dt, key_state)
+    g.accelerate(gravity)
+
+    cd.detectCollisions(objs, m, dt)
+    cd.resolveCollisions(cd.collision_queue, dt)
+
     g.update(dt)
 
 pyglet.clock.schedule_interval(update, 1/60.0)
