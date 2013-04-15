@@ -1,7 +1,6 @@
 import gameobject
 import component.component as component
 
-
 ROLL_TIMER = 1
 
 PLAYER_X_RUN = 4
@@ -21,13 +20,24 @@ class Player(gameobject.GameObject):
         self.moving_right = False
         self.jumping = False
         self.roll_timer = 0
+        self.animations = {}
+
+    def setStateAnimation(self, state, animation):
+        self.animations[state] = animation
+
+    def getStateAnimation(self, state):
+        #returns the animation associated with the state, or None of there isn't one
+        pass
+
+    def showAnimation(self, state):
+        #exchange the player sprite for the new state's sprite
+        pass
 
     def getMovementState(self):
         return self.movement_state
 
     def checkState(self):
         #state checks
-        print 'land', self.landed
         if self.vel == component.Velocity.zero():
             self.setState('IDLE')
             self.moving_left = False
@@ -103,9 +113,14 @@ class Player(gameobject.GameObject):
     def stop(self):
         self.setVelocity(component.Velocity([0, self.vel.y]))
 
+    def gravity(self, g):
+        if not self.landed:
+            self.accelerate(g)
+
     def setState(self, state):
-        print 'state: ' + state
         self.movement_state = state
+        if self.getStateAnimation(state) is not None:
+            self.showAnimation(state)
 
     def setFlags(self, flags):
         pass

@@ -208,8 +208,6 @@ class Map(object):
             if tile.index.y < len(tilemap)-1 and tilemap[tile.index.y+1][tile.index.x].getBoundingPoly() is not None:
                 tile.getBoundingPoly().disableSide(2)
 
-        print tilemap is tile_list
-
     def __str__(self):
         return str(self.map)
 
@@ -225,7 +223,6 @@ class Tile(gameobject.GameObject):
         self.id = tileid
         self.type = tiletype
         self.index = index
-        print index
         kwargs['position'] = position
         kwargs['id'] = 'map' + str(tileid)
         kwargs['sprite'] = sprite

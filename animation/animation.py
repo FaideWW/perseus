@@ -1,28 +1,27 @@
-import io
 from pyglet.sprite import Sprite
 import pyglet.image
 
 import component.component as component
 
+
 class Animation(object):
-    def __init__(self, spritesheet, region_data, fps, o=None, repeats=True):
+    def __init__(self, spritesheet, region_data, o=None, repeats=True):
         origin = component.Position.zero() if o is None else o
         #region data is a filesheet
         self.spritesheet = spritesheet
-        self.region_data = self._readAnimationData(region_data) 
+        self.region_data = self._readAnimationData(region_data)
         self.frames = self._buildFrames(self.spritesheet, self.region_data, origin)
-        #number of milliseconds between frames
-        self.freq = (1 / float(fps)) * 1000
         self.time_since = 0
         self.repeats = repeats
         self.current_frame = 0
-
 
         self.sprite = Sprite(self.frames[0])
 
     def _readAnimationData(self, region_data):
         dataArray = []
         with open(region_data) as r:
+        #number of milliseconds between frames
+            self.freq = (1 / float(r.readline())) * 1000
             for line in r.readlines():
                 data = line.rstrip('\n').split(',')
                 if len(data) != 4 and len(data) != 6:
@@ -39,7 +38,6 @@ class Animation(object):
         sprites = pyglet.image.load(spritesheet)
         frame_list = []
 
-
         for frame in range(len(frame_data)):
 
             #the formatting on this gets a little wonky because of the way pyglet accepts coordinates
@@ -52,22 +50,20 @@ class Animation(object):
             pygl_x = x
             pygl_y = sprites.height - (y + h)
 
-            frame = sprites.get_region(pygl_x,pygl_y,w,h)
+            frame_obj = sprites.get_region(pygl_x, pygl_y, w, h)
 
             #compensate for silly frame offset issues
-            frame.anchor_x = (w / 2) + o.x 
-            frame.anchor_y = (h / 2) + o.y
+            frame_obj.anchor_x = (w / 2) + o.x
+            frame_obj.anchor_y = (h / 2) + o.y
 
-            frame_list.append(frame)
+            frame_list.append(frame_obj)
         return frame_list
-
 
     def update(self, dt):
         self.time_since += dt
         if self.time_since >= self.freq:
             self.nextFrame()
             self.time_since = self.time_since % self.freq
-
 
     def nextFrame(self):
         if self.repeats:

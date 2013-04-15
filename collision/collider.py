@@ -4,11 +4,14 @@ from __future__ import division
 import component.component as component
 import maps.map
 
-
 class Collider(object):
     def __init__(self, tolerance):
         self.collision_queue = []
         self.COLLISION_TOLERANCE = 1 / tolerance
+
+        #this variable determines whether the collider will predict the object's next step,
+        # or use the object's current step
+        self.PREDICT_STEP = True
 
         print 'COLLISION_TOLERANCE', self.COLLISION_TOLERANCE
 
@@ -34,8 +37,9 @@ class Collider(object):
         block_size = worldmap.getTileSize()
 
         for obj in objects:
-            #predict next step by adding the current velocity to each object
-            obj_position = obj.getWorldSpacePosition() + obj.getVelocity() * dt
+
+            obj_position = self.getObjectPosition(obj, dt, self.PREDICT_STEP)
+
             if obj.getBoundingPoly() is None:
                 continue
             bp = obj.getBoundingPoly().offset(obj_position)
@@ -130,20 +134,26 @@ class Collider(object):
 
     def _getIntersectionDepth(self, obj1, obj2, axis, dt):
         """ Return the exact depth of the intersection between two projections """
-        pos1 = obj1.getWorldSpacePosition() + obj1.getVelocity() * dt
-        pos2 = obj2.getWorldSpacePosition() + obj2.getVelocity() * dt
+        
+        pos1 = self.getObjectPosition(obj1, dt, self.PREDICT_STEP)
+        pos2 = self.getObjectPosition(obj2, dt, self.PREDICT_STEP)
+
         bp1 = obj1.getBoundingPoly().offset(pos1)
         bp2 = obj2.getBoundingPoly().offset(pos2)
         projection1 = bp1.scalar_project(axis)
         projection2 = bp2.scalar_project(axis)
         return min(max(projection1) - min(projection2), max(projection2) - min(projection1))
 
+    def getObjectPosition(self, obj, dt, predict=False):
+        position = obj.getWorldSpacePosition() + obj.getVelocity() * dt if predict else obj.getWorldSpacePosition()
+        return position
+
+
     def resolveCollisions(self, collisions, dt):
         for collision in collisions:
             obj1 = collision.obj1
             obj2 = collision.obj2
             #refresh collision depth
-
 
             collision.depth = self._getIntersectionDepth(obj1, obj2, collision.axis, dt)
             if collision.depth < self.COLLISION_TOLERANCE:
@@ -161,8 +171,8 @@ class Collider(object):
 
                 other = obj1 if obj is not obj1 else obj2
 
-                pos = obj.getWorldSpacePosition() + obj.getVelocity() * dt
-                pos_other = other.getWorldSpacePosition() + other.getVelocity() * dt
+                pos = self.getObjectPosition(obj, dt, self.PREDICT_STEP)
+                pos_other = self.getObjectPosition(other, dt, self.PREDICT_STEP)
 
                 #landing hack
                 if hasattr(obj, 'landed'):

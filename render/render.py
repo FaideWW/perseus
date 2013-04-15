@@ -127,6 +127,12 @@ class Render(object):
             #add y position
             batch_obj.vertices[1::2] = [y + position.y for y in batch_obj.vertices[1::2]]
 
+    def getVertexList(self, index=None):
+        if index is None:
+            return self.batch_vertexes
+        else:
+            return self.batch_vertexes[index]
+
     def setBlitPosition(self, index, position):
         pass
 
