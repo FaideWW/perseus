@@ -7,22 +7,23 @@ import collision.collision
 import collision.collider
 import camera.camera as camera
 import component.component as component
+import component.unit as unit
 import gameobject.player
 import render.render as render
 import maps.map as maps
 import playercontroller.playercontroller as playercontroller
 
-EXEC_MODE_DEBUG = True
+EXEC_MODE_DEBUG = False
 
 DEFAULT_UPDATE_FREQ = 1 / 60.0
 
 window = pyglet.window.Window()
 
-window_res = component.Vector(window.get_size())
+unit.Unit.ppu = 70
 
+window_res = unit.Unit.toUnits(component.Vector(window.get_size()))
 
-
-#pyglet.gl.glClearColor(1, 1, 1, 1)
+pyglet.gl.glClearColor(1, 1, 1, 1)
 
 fps = pyglet.clock.ClockDisplay()
 last_frame = pyglet.clock.tick()
@@ -44,7 +45,7 @@ walk_info = asset_path + 'player/walk_sheet.tile'
 
 #obviously this only contains one tile
 
-player_size = component.Vector([64, 64])
+player_size = unit.Unit.toUnits(component.Vector([64, 64]))
 
 #test the animation factory
 af = animationfactory.AnimationFactory(asset_path, player_tilesheet)
@@ -66,7 +67,7 @@ print walk_sheet, walk_info, map_sheet
 
 b = collision.collision.BoundingPoly.fromSize(player_size / 2)
 o = player_size / 2
-p = component.Position([200, 200])
+p = component.Position([2, 2])
 
 c.setPosition(p)
 
@@ -91,12 +92,12 @@ print g.getToRender()
 g.addRenderables(r.generateRenderables(g.getToRender()))
 print pyglet.window.get_platform().get_default_display().get_default_screen()
 
-m = maps.Map(map_sheet, map_tiles, map_info, component.Vector([70, 70]))
+m = maps.Map(map_sheet, map_tiles, map_info, component.Vector([1, 1]))
 #print m
 r.addToBlit(m.mapAsSprite())
 print g.getRenderables()
 
-cd = collision.collider.Collider(1)
+cd = collision.collider.Collider(unit.Unit.ppu)
 
 objs = m.getTileList()
 if EXEC_MODE_DEBUG:
@@ -158,8 +159,8 @@ def update(dt):
         debug_info.text += ' Player state:' + g.getMovementState()
 
         player_info.text = str(g.getWorldSpacePosition())
-        player_info.x = g.getWorldSpacePosition().x
-        player_info.y = g.getWorldSpacePosition().y
+        player_info.x = unit.Unit.toPixels(g.getWorldSpacePosition().x)
+        player_info.y = unit.Unit.toPixels(g.getWorldSpacePosition().y)
 
 
 pyglet.clock.schedule_interval(update, DEFAULT_UPDATE_FREQ)

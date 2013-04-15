@@ -54,12 +54,6 @@ class Collider(object):
             col_min = int(minx / block_size.x)
             col_max = maxx / block_size.x
 
-
-            #print 'rmin', row_min
-            #print 'rmax', row_max
-            #print 'cmin', col_min
-            #print 'cmax', col_max
-
             #hack to resolve on-edge spatial partitioning
 
             if row_max % 1 == 0:
@@ -140,7 +134,7 @@ class Collider(object):
 
     def _getIntersectionDepth(self, obj1, obj2, axis, dt):
         """ Return the exact depth of the intersection between two projections """
-
+        
         pos1 = self.getObjectPosition(obj1, dt, self.PREDICT_STEP)
         pos2 = self.getObjectPosition(obj2, dt, self.PREDICT_STEP)
 
@@ -152,8 +146,8 @@ class Collider(object):
 
     def getObjectPosition(self, obj, dt, predict=False):
         position = obj.getWorldSpacePosition() + obj.getVelocity() * dt if predict else obj.getWorldSpacePosition()
-        #print 'position', position, obj.getWorldSpacePosition(), '+', obj.getVelocity(), '*', dt
         return position
+
 
     def resolveCollisions(self, collisions, dt):
         for collision in collisions:

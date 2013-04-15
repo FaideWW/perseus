@@ -125,9 +125,6 @@ class Player(gameobject.GameObject):
     def setFlags(self, flags):
         pass
 
-    def getWorldSpacePosition(self):
-        return super(Player, self).getWorldSpacePosition()
-
     def resetState(self):
         #reset all flags for a given cycle
         self.jumping = False

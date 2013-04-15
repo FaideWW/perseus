@@ -3,6 +3,7 @@ import pyglet.graphics
 import pyglet.sprite
 
 import component.component as component
+import component.unit as unit
 import animation.animation as animation
 import renderable
 
@@ -115,7 +116,7 @@ class Render(object):
         if index < 0 or index >= len(self.batch_vertexes):
             return
 
-        position = position
+        position = unit.Unit.toPixels(position)
         batch_obj = self.batch_vertexes[index]
         if isinstance(batch_obj, pyglet.sprite.Sprite):
             batch_obj.set_position(batch_obj.x + position.x, batch_obj.y + position.y)
