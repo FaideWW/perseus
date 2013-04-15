@@ -14,9 +14,13 @@ import playercontroller.playercontroller as playercontroller
 
 EXEC_MODE_DEBUG = True
 
+DEFAULT_UPDATE_FREQ = 1 / 60.0
+
 window = pyglet.window.Window()
 
 window_res = component.Vector(window.get_size())
+
+
 
 #pyglet.gl.glClearColor(1, 1, 1, 1)
 
@@ -132,7 +136,7 @@ def on_key_press(symbol, modifiers):
 def on_key_release(symbol, modifiers):
     pc.keyUp(symbol)
 
-gravity = component.Velocity([0, -3])
+gravity = component.Velocity([0, -0.2])
 
 key_state = pyglet.window.key.KeyStateHandler()
 window.push_handlers(key_state)
@@ -158,5 +162,5 @@ def update(dt):
         player_info.y = g.getWorldSpacePosition().y
 
 
-pyglet.clock.schedule_interval(update, 1/60.0)
+pyglet.clock.schedule_interval(update, DEFAULT_UPDATE_FREQ)
 pyglet.app.run()
