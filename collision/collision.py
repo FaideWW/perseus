@@ -13,7 +13,7 @@ class BoundingPoly(object):
     def _genNormalVectors(self, vertices):
         #huzzah for list comprehensions!
         vertices.append(vertices[0])
-        return [(component.Vector(dest) - component.Vector(source)).rot(90) for source, dest in zip(vertices, vertices[1:])]
+        return [(component.Vector(dest) - component.Vector(source)).rot(90).normalize() for source, dest in zip(vertices, vertices[1:])]
 
     def getVertices(self):
         return self.vertex_list

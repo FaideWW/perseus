@@ -1,6 +1,5 @@
 import collision.collision as collision
 import component.component as component
-import component.unit as unit
 import gameobject.gameobject as gameobject
 import pyglet.image
 
@@ -69,17 +68,19 @@ class Map(object):
         bp_tr = component.Position([float(self.t_size.x)/2, -float(self.t_size.y)/2])
         bp_br = component.Position([float(self.t_size.x)/2, float(self.t_size.y)/2])
         bp_bl = component.Position([-float(self.t_size.x)/2, float(self.t_size.y)/2])
-        map_height = len(mapdata) - 1
+        map_height = (len(mapdata) - 1) * self.t_size.y
 
         for y in range(len(mapdata)):
+            mapy = y * self.t_size.y
             map_array[y] = [None for i in enumerate(mapdata[y])]
             for x in range(len(mapdata[y])):
+                mapx = x * self.t_size.x
                 tilesprite = None
                 bp = None
                 if mapdata[y][x] in tiledata:
                     tilesprite = tiledata[mapdata[y][x]]
                     bp = collision.BoundingPoly([bp_tl, bp_tr, bp_br, bp_bl])
-                map_array[y][x] = Tile(ident, component.Vector([x + offset_x, (map_height - y) + offset_y]), component.Vector([x, y]), mapdata[y][x], tilesprite, bp, size=self.t_size, collider=collision.StaticCollidable())
+                map_array[y][x] = Tile(ident, component.Vector([mapx + offset_x, (map_height - mapy) + offset_y]), component.Vector([x, y]), mapdata[y][x], tilesprite, bp, size=self.t_size, collider=collision.StaticCollidable())
                 ident += 1
 
         self.num_tiles = ident
@@ -94,7 +95,7 @@ class Map(object):
                     if map_array[y+1][x] is not None:
                         edges.append(Tile.EDGE_SOLID)
                     else:
-                        edges.append(Tile.EDGE_NONE)    
+                        edges.append(Tile.EDGE_NONE)
                 except IndexError:
                     #if we're on the outside of the map, give the tiles a solid edge
                     edges.append(Tile.EDGE_SOLID)
@@ -156,7 +157,7 @@ class Map(object):
         return [tile.sprite for row in self.map for tile in row if tile.sprite]
 
     def mapAsSprite(self):
-        p_size = unit.Unit.toPixels(self.t_size)
+        p_size = self.t_size
         #returns a large sprite of the map, textures and all
         map_w = max([len(row) for row in self.map]) * p_size.y
         map_h = len(self.map) * p_size.x
