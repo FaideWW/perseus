@@ -6,9 +6,6 @@ LOCK_X_POSITIVE = 1
 LOCK_Y_NEGATIVE = 2
 LOCK_Y_POSITIVE = 3
 
-#move this to a global module during refactor
-DEFAULT_UPDATE_FREQ = 1/60.0
-
 
 class GameObject(object):
     def __init__(self, **kwargs):
@@ -19,7 +16,6 @@ class GameObject(object):
         self.position = None if 'position' not in kwargs else kwargs['position']
         self.boundingpoly = None if 'boundingpoly' not in kwargs else kwargs['boundingpoly']
         self.collider = None if 'collider' not in kwargs else kwargs['collider']
-        self.fps = DEFAULT_UPDATE_FREQ if 'fps' not in kwargs else kwargs['fps']
         self.type = None if 'type' not in kwargs else kwargs['type']
         self.position = component.Position.zero() if 'position' not in kwargs else kwargs['position']
         self.sprite = None if 'sprite' not in kwargs else kwargs['sprite']
@@ -146,12 +142,8 @@ class GameObject(object):
         pass
 
     def update(self, dt):
-
-        #rescale the interpolation
-        interp = dt / self.fps
-
         #add a to v
-        self.setVelocity(self.getVelocity() + self.acc * interp)
+        self.setVelocity(self.getVelocity() + self.acc * dt)
 
         #clamp v
         self.vel = max(self.vel, self.maxV)
@@ -166,10 +158,10 @@ class GameObject(object):
         if self.locked_directions[LOCK_Y_POSITIVE]:
             self.vel.y = min(self.vel.y, 0)
 
-        #print 'timestep v', self.vel * interp
+        #print 'timestep v', self.vel * dt
 
         #add p to v
-        self.position = self.position + self.vel * interp
+        self.position = self.position + self.vel * dt
 
         if self.sprite is not None:
             self.sprite.update(dt)

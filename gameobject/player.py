@@ -1,12 +1,16 @@
+from collections import defaultdict
+
 import gameobject
 import component.component as component
 
 ROLL_TIMER = 1
 
-PLAYER_X_RUN = 4
+DEFAULT_UPDATE_FREQ = 1 / 60.0
+
+PLAYER_X_RUN = 4 / DEFAULT_UPDATE_FREQ
 PLAYER_X_SPRINT = 1.5
 PLAYER_X_CROUCH = 0.5
-PLAYER_Y_JUMP = 6
+PLAYER_Y_JUMP = 6 / DEFAULT_UPDATE_FREQ
 PLAYER_Y_ROLLJUMP = 8
 PLAYER_Y_DBLJUMP = 3
 
@@ -14,13 +18,14 @@ PLAYER_Y_DBLJUMP = 3
 class Player(gameobject.GameObject):
     def __init__(self, **kwargs):
         super(Player, self).__init__(**kwargs)
-        self.setState('IDLE')
         self.landed = False
         self.moving_left = False
         self.moving_right = False
         self.jumping = False
         self.roll_timer = 0
-        self.animations = {}
+        self.animations = defaultdict(self.sprite)
+        self.setState('IDLE')
+
 
     def setStateAnimation(self, state, animation):
         self.animations[state] = animation
@@ -31,7 +36,7 @@ class Player(gameobject.GameObject):
 
     def showAnimation(self, state):
         #exchange the player sprite for the new state's sprite
-        pass
+        self.sprite = self.animations(state)
 
     def getMovementState(self):
         return self.movement_state
@@ -115,15 +120,19 @@ class Player(gameobject.GameObject):
 
     def gravity(self, g):
         if not self.landed:
-            self.accelerate(g)
+            grav = component.Velocity([0, g])
+            self.accelerate(grav)
 
     def setState(self, state):
         self.movement_state = state
-        if self.getStateAnimation(state) is not None:
-            self.showAnimation(state)
+        self.showAnimation(state)
+        
 
     def setFlags(self, flags):
         pass
+
+    def getWorldSpacePosition(self):
+        return super(Player, self).getWorldSpacePosition()
 
     def resetState(self):
         #reset all flags for a given cycle

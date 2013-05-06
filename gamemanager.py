@@ -7,23 +7,19 @@ import collision.collision
 import collision.collider
 import camera.camera as camera
 import component.component as component
-import component.unit as unit
 import gameobject.player
 import render.render as render
 import maps.map as maps
 import playercontroller.playercontroller as playercontroller
 
-EXEC_MODE_DEBUG = False
-
+EXEC_MODE_DEBUG = True
 DEFAULT_UPDATE_FREQ = 1 / 60.0
 
 window = pyglet.window.Window()
 
-unit.Unit.ppu = 70
+window_res = component.Vector(window.get_size())
 
-window_res = unit.Unit.toUnits(component.Vector(window.get_size()))
-
-pyglet.gl.glClearColor(1, 1, 1, 1)
+#pyglet.gl.glClearColor(1, 1, 1, 1)
 
 fps = pyglet.clock.ClockDisplay()
 last_frame = pyglet.clock.tick()
@@ -45,7 +41,7 @@ walk_info = asset_path + 'player/walk_sheet.tile'
 
 #obviously this only contains one tile
 
-player_size = unit.Unit.toUnits(component.Vector([64, 64]))
+player_size = component.Vector([64, 64])
 
 #test the animation factory
 af = animationfactory.AnimationFactory(asset_path, player_tilesheet)
@@ -55,7 +51,7 @@ print 'psize', player_size
 try:
     a = animation.Animation(walk_sheet, walk_info)
 except IOError, e:
-    asset_path = asset_path2
+    asset_path =asset_path2
     walk_sheet = asset_path + 'player/walk_sheet.png'
     walk_info = asset_path + 'player/walk_sheet.tile'
     a = animation.Animation(walk_sheet, walk_info)
@@ -67,7 +63,7 @@ print walk_sheet, walk_info, map_sheet
 
 b = collision.collision.BoundingPoly.fromSize(player_size / 2)
 o = player_size / 2
-p = component.Position([2, 2])
+p = component.Position([200, 200])
 
 c.setPosition(p)
 
@@ -92,12 +88,12 @@ print g.getToRender()
 g.addRenderables(r.generateRenderables(g.getToRender()))
 print pyglet.window.get_platform().get_default_display().get_default_screen()
 
-m = maps.Map(map_sheet, map_tiles, map_info, component.Vector([1, 1]))
+m = maps.Map(map_sheet, map_tiles, map_info, component.Vector([70, 70]))
 #print m
 r.addToBlit(m.mapAsSprite())
 print g.getRenderables()
 
-cd = collision.collider.Collider(unit.Unit.ppu)
+cd = collision.collider.Collider(1)
 
 objs = m.getTileList()
 if EXEC_MODE_DEBUG:
@@ -137,7 +133,8 @@ def on_key_press(symbol, modifiers):
 def on_key_release(symbol, modifiers):
     pc.keyUp(symbol)
 
-gravity = component.Velocity([0, -0.2])
+gravity = -0.21875 * 120
+
 
 key_state = pyglet.window.key.KeyStateHandler()
 window.push_handlers(key_state)
@@ -159,8 +156,8 @@ def update(dt):
         debug_info.text += ' Player state:' + g.getMovementState()
 
         player_info.text = str(g.getWorldSpacePosition())
-        player_info.x = unit.Unit.toPixels(g.getWorldSpacePosition().x)
-        player_info.y = unit.Unit.toPixels(g.getWorldSpacePosition().y)
+        player_info.x = g.getWorldSpacePosition().x
+        player_info.y = g.getWorldSpacePosition().y
 
 
 pyglet.clock.schedule_interval(update, DEFAULT_UPDATE_FREQ)
